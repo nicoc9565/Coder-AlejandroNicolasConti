@@ -34,3 +34,27 @@ def tirar_dado(request):
         "fecha": datetime.now(),
     }
     return render(request, "core/dados.html", context=datos)
+
+
+def template(request):
+    datos = {
+        "title": "Ejercicio",
+        "name": "Nicolas",
+        "apellido": "Conti",
+    }
+    return render(request, "core/template.html", context=datos)
+
+
+def ver_notas(request):
+    lista_notas = [10, 8, 3, 7, 4, 5, 8]
+    return render(request, "core/notas.html", {"notas": lista_notas})
+
+
+def template2(request):
+    usuarios = [
+        {"nombre": "juan", "email": "juan@django"},
+        {"nombre": "santi", "email": "santi@django"},
+        {"nombre": "agustín", "email": "agus@django"},
+    ]
+
+    return render(request, "core/template2.html", {"usuarios": usuarios})
