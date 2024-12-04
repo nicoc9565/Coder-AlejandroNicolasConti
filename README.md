@@ -12,3 +12,5 @@ Linkedin: linkedin.com/in/esteban-acevedo-aberastain
 Nombre: Alejandro Nicolas Conti
 
 Linkedin: linkedin.com/in/nicoc95
+
+## Para activar entorno virtual .\.venv\Scripts\Activate.ps1
