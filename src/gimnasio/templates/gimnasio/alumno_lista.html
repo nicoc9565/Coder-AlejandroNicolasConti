@@ -21,10 +21,9 @@
                 <td>{{ alumno.altura }}</td>
                 <td>{{ alumno.correo }}</td>
                 <td>
-                    <a href="#">Ver Detalles</a> | 
-                    <a href="#">Editar</a> | 
-                    <a href="#">Eliminar</a>
-                </td>
+                    <a href="{% url 'gimnasio:alumno-detail' alumno.pk %}">Ver Detalles</a> | 
+                    <a href="{% url 'gimnasio:alumno-edit' alumno.pk %}">Editar</a> | 
+                    <a href="{% url 'gimnasio:alumno-delete' alumno.pk %}">Eliminar</a>                </td>
             </tr>
             {% empty %}
             <tr>

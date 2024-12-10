@@ -1,0 +1,14 @@
+{% extends 'gimnasio/base.html' %}
+
+{% block contenido %}
+    <h1>Detalle del Alumno</h1>
+    <p>Nombre: {{ alumno.nombre }}</p>
+    <p>Edad: {{ alumno.edad }}</p>
+    <p>Altura: {{ alumno.altura }}</p>
+    <p>Horario: {{ alumno.horario }}</p>
+    <p>Cuota Pagada: {% if alumno.cuota_pagada %} Sí {% else %} No {% endif %}</p>
+    <p>Días de Asistencia: {{ alumno.dias_asistencia.all|join:", " }}</p>
+    <a href="{% url 'gimnasio:alumno-edit' alumno.pk %}">Editar</a>
+    <a href="{% url 'gimnasio:alumno-delete' alumno.pk %}">Eliminar</a>
+    <a href="{% url 'gimnasio:alumno-list' %}">Volver a la lista</a>
+{% endblock contenido %}

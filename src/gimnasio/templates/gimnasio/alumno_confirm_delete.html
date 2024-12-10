@@ -1,0 +1,11 @@
+{% extends 'gimnasio/base.html' %}
+
+{% block contenido %}
+    <h1>Confirmar eliminación</h1>
+    <p>¿Estás seguro de que deseas eliminar a {{ alumno.nombre }}?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Eliminar</button>
+        <a href="{% url 'gimnasio:alumno-list' %}">Cancelar</a>
+    </form>
+{% endblock %}

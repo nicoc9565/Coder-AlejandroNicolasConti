@@ -11,8 +11,15 @@
     <title>MTOR-COMPLEX</title>
 </head>
 <body>
+    <nav>
+        <ul>
+            <li><a href="{% url 'gimnasio:index' %}">Inicio</a></li>
+            <li><a href="{% url 'gimnasio:alumno-list' %}">Lista de Alumnos</a></li>
+            <li><a href="{% url 'gimnasio:alumno-create' %}">Nuevo Alumno</a></li>
+            <li><a href="{% url 'gimnasio:about' %}">Acerca de</a></li>
+        </ul>
+    </nav>
     {% block contenido %}
-        
     {% endblock contenido %}
 </body>
 </html>
