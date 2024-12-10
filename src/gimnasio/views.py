@@ -1,27 +1,31 @@
-from django.shortcuts import render, redirect
-
+from django.shortcuts import render
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
-from .models import Alumno
+from .models import Alumno, DiaAsistencia
 
 
 class AlumnoCreateView(CreateView):
     model = Alumno
-    fields = ["nombre", "edad", "altura", "dias_asistencia", "horario", "cuota_pagada"]
+    fields = ["nombre", "edad", "altura", "horario", "cuota_pagada"]
     template_name = "gimnasio/alumno_form.html"
-    success_url = reverse_lazy("alumno-list")
+    success_url = reverse_lazy("gimnasio:alumno-list")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["dias"] = DiaAsistencia.objects.all()
+        return context
 
-def nuevo_alumno(request):
-    if request.method == "POST":
+    def form_valid(self, form):
+        alumno = form.save()
 
-        nombre = request.POST.get("nombre")
+        dias_asistencia = self.request.POST.getlist("dias_asistencia")
+        for dia_id in dias_asistencia:
+            dia_obj = DiaAsistencia.objects.get(id=dia_id)
+            alumno.dias_asistencia.add(dia_obj)
 
-        Alumno.objects.create(nombre=nombre)
+        alumno.save()
 
-        return redirect("/alumnos/")
-
-    return render(request, "gimnasio/alumno_form.html")
+        return super().form_valid(form)
 
 
 def lista_alumnos(request):

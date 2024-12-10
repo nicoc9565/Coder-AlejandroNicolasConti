@@ -10,6 +10,5 @@ urlpatterns = [
     path("index", index, name="index"),
     path("about/", about, name="about"),
     path("alumnos/nuevo/", AlumnoCreateView.as_view(), name="alumno-create"),
-    path("alumnos/", views.lista_alumnos, name="lista_alumnos"),
-    path("alumnos/nuevo/", views.nuevo_alumno, name="nuevo_alumno"),
+    path("alumnos/", views.lista_alumnos, name="alumno-list"),
 ]

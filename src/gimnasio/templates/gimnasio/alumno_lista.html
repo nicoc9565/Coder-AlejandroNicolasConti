@@ -1,36 +1,36 @@
-{% extends 'base.html' %}
+{% extends 'gimnasio/base.html' %}
 
 {% block contenido %}
-<h1>Lista de Alumnos</h1>
+    <h1>Lista de Alumnos</h1>
 
-<table>
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Edad</th>
-            <th>Altura</th>
-            <th>Correo</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for alumno in alumnos %}
-        <tr>
-            <td>{{ alumno.nombre }}</td>
-            <td>{{ alumno.edad }}</td>
-            <td>{{ alumno.altura }}</td>
-            <td>{{ alumno.correo }}</td>
-            <td>
-                <a href="#">Ver Detalles</a> | 
-                <a href="#">Editar</a> | 
-                <a href="#">Eliminar</a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="5">No hay alumnos registrados.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Edad</th>
+                <th>Altura</th>
+                <th>Correo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for alumno in alumnos %}
+            <tr>
+                <td>{{ alumno.nombre }}</td>
+                <td>{{ alumno.edad }}</td>
+                <td>{{ alumno.altura }}</td>
+                <td>{{ alumno.correo }}</td>
+                <td>
+                    <a href="#">Ver Detalles</a> | 
+                    <a href="#">Editar</a> | 
+                    <a href="#">Eliminar</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No hay alumnos registrados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock contenido %}
