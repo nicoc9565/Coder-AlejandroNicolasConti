@@ -3,14 +3,20 @@
 
 
 {% block contenido %}
-    <h1>Detalle del Alumno</h1>
-    <p>Nombre: {{ alumno.nombre }}</p>
-    <p>Edad: {{ alumno.edad }}</p>
-    <p>Altura: {{ alumno.altura }}</p>
-    <p>Horario: {{ alumno.horario }}</p>
-    <p>Cuota Pagada: {% if alumno.cuota_pagada %} Sí {% else %} No {% endif %}</p>
-    <p>Días de Asistencia: {{ alumno.dias_asistencia.all|join:", " }}</p>
-    <a href="{% url 'gimnasio:alumno-edit' alumno.pk %}">Editar</a>
-    <a href="{% url 'gimnasio:alumno-delete' alumno.pk %}">Eliminar</a>
-    <a href="{% url 'gimnasio:alumno-list' %}">Volver a la lista</a>
+    <div style="display: flex; flex-direction: column; text-align: center; align-items: center; justify-content: center; margin-top: 5rem;">
+        <h1 style="font-size: 5rem; font-weight: bold;">Detalle del Alumno</h1>
+        <div style="font-size: 2.2rem;">
+            <p>Nombre: {{ alumno.nombre }}</p>
+            <p>Edad: {{ alumno.edad }}</p>
+            <p>Altura: {{ alumno.altura }}</p>
+            <p>Horario: {{ alumno.horario }}</p>
+            <p>Cuota Pagada: {% if alumno.cuota_pagada %} Sí {% else %} No {% endif %}</p>
+            <p>Días de Asistencia: {{ alumno.dias_asistencia.all|join:", " }}</p>
+        </div>
+        <div style="margin-top: 2rem; font-size: 2rem; display: flex; gap: 1rem;">
+            <a href="{% url 'gimnasio:alumno-edit' alumno.pk %}">Editar</a>
+            <a href="{% url 'gimnasio:alumno-delete' alumno.pk %}">Eliminar</a>
+            <a href="{% url 'gimnasio:alumno-list' %}">Volver a la lista</a>
+        </div>
+    </div>
 {% endblock contenido %}
