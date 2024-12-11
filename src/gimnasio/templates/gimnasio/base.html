@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
-    {% load static %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'gimnasio/css/styles.css' %}">
@@ -15,27 +15,26 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-dark">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="{% url 'gimnasio:index' %}">MTOR COMPLEX</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item me-5">
-                            <a class="nav-link" aria-current="page" href="{% url 'gimnasio:index' %}">Inicio</a>
-                        </li>
-                        <li class="nav-item me-5">
-                            <a class="nav-link" href="{% url 'gimnasio:alumno-list' %}">Alumnos</a>
-                        </li>
-                        <li class="nav-item me-5">
-                            <a class="nav-link" href="{% url 'gimnasio:alumno-create' %}">Registrar Alumno</a>
-                        </li>
-                    </ul>
+        <div class="">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <div class="container-fluid">
+                    <a href="#" class="navbar-brand">Mtor-Complex</a>
+                    <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse bg-dark" id="navbarCollapse">
+                        <div class="navbar-nav">
+                            <a href="{% url 'gimnasio:index' %}" class="nav-item nav-link">Inicio</a>
+                            <a href="{% url 'gimnasio:alumno-list' %}" class="nav-item nav-link">Alumnos</a>
+                            <a href="{% url 'gimnasio:alumno-create' %}" class="nav-item nav-link">Registrar Alumno</a>
+                        </div>
+                        <div class="navbar-nav ms-auto">
+                            <a href="#" class="nav-item nav-link">Login</a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
+        </div>
     </header>
 
     <main>
