@@ -29,6 +29,16 @@ body {
     color: #0c58a5;
 }
 
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+}
+
+p {
+    font-size: 1.2rem;
+    line-height: 1.5;
+}
+
 footer {
     background-color: #343a40;
     color: #f8f9fa;
