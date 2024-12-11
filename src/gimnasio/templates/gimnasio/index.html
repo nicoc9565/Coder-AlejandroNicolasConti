@@ -1,5 +1,17 @@
 {% extends 'gimnasio/base.html' %}
+{% load static %}
 
 {% block contenido %}
-    <h1>Bienvenido al Gimnasio</h1>
+    <div class="text-center mt-5">
+        <img src="{% static 'gimnasio/images/mtor-complex.webp' %}" alt="Logo del Gym" class="img-fluid mb-4" style="max-width: 300px;">
+        <h1 class="display-1">Bienvenido a MTOR-COMPLEX</h1>
+        <p class="lead display-6">¡Transforma tu cuerpo y tu vida con nosotros!</p>
+    </div>
+    <section class="">
+        <div class="text-center mt-5">
+            <h1 class="display-3">Acerca de Mi</h1>
+            <p lass="lead display-6">Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente eligendi omnis quidem! At eum quasi delectus ab sit ducimus? Ipsam, iusto accusantium! Magni quae quasi quas, et aspernatur atque hic.</p>
+        </div>
+    </section>
 {% endblock contenido %}
+

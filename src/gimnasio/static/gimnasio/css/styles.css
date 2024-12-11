@@ -1,5 +1,12 @@
+body {
+    display: grid;
+    min-height: 100dvh;
+    grid-template-rows: auto 1fr auto;
+}
+
 .navbar {
     font-size: 18px;
+    height: 5rem;
     background-color: #f8f9fa;
     pad: 10px 20px;
 }
@@ -20,4 +27,48 @@
 
 .navbar .nav-link:hover {
     color: #0c58a5;
+}
+
+footer {
+    background-color: #343a40;
+    color: #f8f9fa;
+    padding: 40px 0;
+    text-align: center;
+}
+
+footer h5 {
+    font-size: 2.2rem;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+footer p {
+    font-size: 1.5rem;
+    line-height: 1.5;
+}
+
+footer a {
+    font-size: 1.5rem;
+    color: #f8f9fa;
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: #ff8c00;
+}
+
+footer hr {
+    margin: 20px 0;
+    border: 0;
+    border-top: 1px solid #fff;
+}
+
+footer .container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+footer .bi-instagram {
+    font-size: 2rem;
+    margin-right: 10px;
 }
