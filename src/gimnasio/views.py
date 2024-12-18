@@ -8,6 +8,7 @@ from django.db.models import Count, Avg
 from .models import *
 from .forms import RegistroForm, RutinaForm, RutinaEjercicioForm, EjercicioCompletadoForm, AlumnoForm
 from datetime import datetime, timedelta
+from django.http import JsonResponse
 
 def es_profesor(user):
     if not user.is_authenticated:
@@ -158,21 +159,58 @@ def asignar_alumno(request, alumno_id):
 def crear_rutina(request):
     if request.method == 'POST':
         form = RutinaForm(request.POST)
+        ejercicio_forms = []
+        
+        # Procesar los datos de ejercicios
+        ejercicios_data = []
+        for key in request.POST:
+            if key.startswith('nombre_ejercicio-'):
+                index = key.split('-')[1]
+                ejercicio_data = {
+                    'grupo_muscular': request.POST.get(f'grupo_muscular-{index}'),
+                    'nombre_ejercicio': request.POST.get(f'nombre_ejercicio-{index}'),
+                    'series': request.POST.get(f'series-{index}'),
+                    'repeticiones': request.POST.get(f'repeticiones-{index}'),
+                    'peso': request.POST.get(f'peso-{index}'),
+                }
+                ejercicios_data.append(ejercicio_data)
+        
         if form.is_valid():
             rutina = form.save(commit=False)
             rutina.profesor = request.user
             rutina.save()
+            
+            # Guardar los ejercicios
+            for i, ejercicio_data in enumerate(ejercicios_data, start=1):
+                # Crear o obtener el ejercicio
+                ejercicio, _ = Ejercicio.objects.get_or_create(
+                    nombre=ejercicio_data['nombre_ejercicio'],
+                    grupo_muscular=ejercicio_data['grupo_muscular'],
+                    defaults={
+                        'descripcion': '',
+                        'creado_por': request.user
+                    }
+                )
+                
+                # Crear la relación RutinaEjercicio
+                RutinaEjercicio.objects.create(
+                    rutina=rutina,
+                    ejercicio=ejercicio,
+                    series=ejercicio_data['series'],
+                    repeticiones=ejercicio_data['repeticiones'],
+                    peso=ejercicio_data['peso'],
+                    orden=i
+                )
+            
             messages.success(request, 'Rutina creada exitosamente')
-            return redirect('gimnasio:agregar_ejercicios_rutina', rutina_id=rutina.id)
+            return redirect('gimnasio:panel_profesor')
     else:
         form = RutinaForm()
-    
-    # Obtener todos los alumnos asignados al profesor
-    alumnos = Alumno.objects.filter(rutinas__profesor=request.user).distinct()
+        ejercicio_form = RutinaEjercicioForm()
     
     context = {
         'form': form,
-        'alumnos': alumnos,
+        'ejercicio_form': ejercicio_form,
     }
     return render(request, 'gimnasio/crear_rutina.html', context)
 
@@ -183,18 +221,59 @@ def crear_rutina_alumno(request, alumno_id):
     
     if request.method == 'POST':
         form = RutinaForm(request.POST)
+        ejercicio_forms = []
+        
+        # Procesar los datos de ejercicios
+        ejercicios_data = []
+        for key in request.POST:
+            if key.startswith('nombre_ejercicio-'):
+                index = key.split('-')[1]
+                ejercicio_data = {
+                    'grupo_muscular': request.POST.get(f'grupo_muscular-{index}'),
+                    'nombre_ejercicio': request.POST.get(f'nombre_ejercicio-{index}'),
+                    'series': request.POST.get(f'series-{index}'),
+                    'repeticiones': request.POST.get(f'repeticiones-{index}'),
+                    'peso': request.POST.get(f'peso-{index}'),
+                }
+                ejercicios_data.append(ejercicio_data)
+        
         if form.is_valid():
             rutina = form.save(commit=False)
             rutina.profesor = request.user
             rutina.alumno = alumno
             rutina.save()
+            
+            # Guardar los ejercicios
+            for i, ejercicio_data in enumerate(ejercicios_data, start=1):
+                # Crear o obtener el ejercicio
+                ejercicio, _ = Ejercicio.objects.get_or_create(
+                    nombre=ejercicio_data['nombre_ejercicio'],
+                    grupo_muscular=ejercicio_data['grupo_muscular'],
+                    defaults={
+                        'descripcion': '',
+                        'creado_por': request.user
+                    }
+                )
+                
+                # Crear la relación RutinaEjercicio
+                RutinaEjercicio.objects.create(
+                    rutina=rutina,
+                    ejercicio=ejercicio,
+                    series=ejercicio_data['series'],
+                    repeticiones=ejercicio_data['repeticiones'],
+                    peso=ejercicio_data['peso'],
+                    orden=i
+                )
+            
             messages.success(request, f'Rutina creada exitosamente para {alumno.nombre}')
-            return redirect('gimnasio:agregar_ejercicios_rutina', rutina_id=rutina.id)
+            return redirect('gimnasio:panel_profesor')
     else:
         form = RutinaForm(initial={'alumno': alumno})
+        ejercicio_form = RutinaEjercicioForm()
     
     context = {
         'form': form,
+        'ejercicio_form': ejercicio_form,
         'alumno': alumno,
     }
     return render(request, 'gimnasio/crear_rutina.html', context)
@@ -631,3 +710,9 @@ def desactivar_rutina(request, rutina_id):
     rutina.save()
     messages.success(request, f'La rutina {rutina.nombre} ha sido desactivada.')
     return redirect('gimnasio:gestionar_rutina', alumno_id=rutina.alumno.id)
+
+@login_required
+def get_ejercicios_por_grupo(request):
+    grupo_muscular = request.GET.get('grupo_muscular')
+    ejercicios = Ejercicio.objects.filter(grupo_muscular=grupo_muscular).values('id', 'nombre')
+    return JsonResponse(list(ejercicios), safe=False)

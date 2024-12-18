@@ -34,4 +34,5 @@ urlpatterns = [
     path('ejercicios/', views.gestionar_ejercicios, name='gestionar_ejercicios'),
     path('ejercicios/editar/<int:ejercicio_id>/', views.editar_ejercicio, name='editar_ejercicio'),
     path('ejercicios/eliminar/<int:ejercicio_id>/', views.eliminar_ejercicio, name='eliminar_ejercicio'),
+    path('api/ejercicios/', views.get_ejercicios_por_grupo, name='get_ejercicios_por_grupo'),
 ]

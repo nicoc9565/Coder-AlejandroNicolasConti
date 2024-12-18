@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Rutina, RutinaEjercicio, EjercicioCompletado, Alumno
+from .models import Rutina, RutinaEjercicio, EjercicioCompletado, Alumno, Ejercicio
 
 class RegistroForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -37,18 +37,49 @@ class RutinaForm(forms.ModelForm):
         }
 
 class RutinaEjercicioForm(forms.ModelForm):
+    grupo_muscular = forms.ChoiceField(
+        choices=[
+            ('Pecho', 'Pecho'),
+            ('Espalda', 'Espalda'),
+            ('Piernas', 'Piernas'),
+            ('Hombros', 'Hombros'),
+            ('Brazos', 'Brazos'),
+            ('Abdominales', 'Abdominales'),
+            ('Cardio', 'Cardio'),
+            ('General', 'General'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    nombre_ejercicio = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ej: Peso Muerto Convencional'
+        })
+    )
+    
     class Meta:
         model = RutinaEjercicio
-        fields = ['ejercicio', 'series', 'repeticiones', 'peso', 'descanso', 'orden', 'notas']
+        fields = ['series', 'repeticiones', 'peso']
         widgets = {
-            'ejercicio': forms.Select(attrs={'class': 'form-select'}),
-            'series': forms.NumberInput(attrs={'class': 'form-control'}),
-            'repeticiones': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 12-15 o "Hasta el fallo"'}),
-            'peso': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 10kg o "Peso corporal"'}),
-            'descanso': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 60 segundos'}),
-            'orden': forms.NumberInput(attrs={'class': 'form-control'}),
-            'notas': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'series': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '10'}),
+            'repeticiones': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 8-12 o 15'}),
+            'peso': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 10kg o Peso corporal'}),
         }
+        help_texts = {
+            'series': 'Número de series a realizar',
+            'repeticiones': 'Número o rango de repeticiones por serie',
+            'peso': 'Peso a utilizar (en kg) o "Peso corporal"',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filtrar ejercicios por grupo muscular cuando se seleccione
+        if 'grupo_muscular' in self.data:
+            self.fields['ejercicio'].queryset = Ejercicio.objects.filter(
+                grupo_muscular=self.data['grupo_muscular']
+            )
 
 class EjercicioCompletadoForm(forms.ModelForm):
     class Meta:
