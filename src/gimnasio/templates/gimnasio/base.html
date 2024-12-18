@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="{% static 'gimnasio/css/styles.css' %}">
     <link rel="icon" href="{% static 'gimnasio/images/mtor-complex.png' %}" type="image/x-icon">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container">
@@ -39,9 +39,6 @@
                         {% if user.perfil and user.perfil.es_profesor %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'gimnasio:panel_profesor' %}">Panel de Control</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'gimnasio:alumno-list' %}">Alumnos</a>
                             </li>
                         {% else %}
                             <li class="nav-item">
@@ -65,43 +62,80 @@
     </nav>
 
     <!-- Main Content -->
-    <main>
-        {% block contenido %}{% endblock %}
+    <main class="flex-shrink-0">
+        <div class="container py-4">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% block contenido %}{% endblock %}
+        </div>
     </main>
 
     <!-- Footer -->
-    <footer class="mt-4">
+    <footer class="site-footer">
         <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-3" data-aos="fade-up" data-aos-delay="100">
-                    <h5>MTOR-COMPLEX</h5>
-                    <p>Transformando vidas a través del fitness y el bienestar.</p>
-                    <div class="social-icons">
-                        <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-                        <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
-                        <a href="#" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
+            <div class="footer-top">
+                <div class="footer-info">
+                    <h3>MTOR-COMPLEX</h3>
+                    <p>Tu gimnasio de confianza para alcanzar tus metas fitness.</p>
+                </div>
+                <div class="footer-contact">
+                    <div class="contact-item">
+                        <i class="bi bi-geo-alt"></i>
+                        <span>Av. Siempreviva 742</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="bi bi-telephone"></i>
+                        <span>+54 11 1234-5678</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="bi bi-envelope"></i>
+                        <span>info@mtor-complex.com</span>
                     </div>
                 </div>
-                <div class="col-md-4 mb-3" data-aos="fade-up" data-aos-delay="200">
-                    <h5>Enlaces Útiles</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{% url 'gimnasio:index' %}"><i class="bi bi-chevron-right"></i>Inicio</a></li>
-                        <li><a href="#"><i class="bi bi-chevron-right"></i>Servicios</a></li>
-                        <li><a href="#"><i class="bi bi-chevron-right"></i>Horarios</a></li>
-                        <li><a href="#"><i class="bi bi-chevron-right"></i>Contacto</a></li>
+            </div>
+
+            <div class="footer-middle">
+                <div class="footer-nav">
+                    <h4>Enlaces Rápidos</h4>
+                    <ul>
+                        <li><a href="{% url 'gimnasio:index' %}">Inicio</a></li>
+                        <li><a href="#">Programas</a></li>
+                        <li><a href="#">Clases</a></li>
+                        <li><a href="#">Entrenadores</a></li>
                     </ul>
                 </div>
-                <div class="col-md-4 mb-3" data-aos="fade-up" data-aos-delay="300">
-                    <h5>Contacto</h5>
-                    <ul class="list-unstyled">
-                        <li><i class="bi bi-geo-alt"></i>Av. Siempreviva 742</li>
-                        <li><i class="bi bi-telephone"></i>+54 11 1234-5678</li>
-                        <li><i class="bi bi-envelope"></i>info@mtor-complex.com</li>
+                <div class="footer-hours">
+                    <h4>Horarios</h4>
+                    <ul>
+                        <li>Lun - Vie: 6:00 - 22:00</li>
+                        <li>Sábados: 8:00 - 20:00</li>
+                        <li>Domingos: 8:00 - 14:00</li>
                     </ul>
+                </div>
+                <div class="footer-social">
+                    <h4>Síguenos</h4>
+                    <div class="social-icons">
+                        <a href="#"><i class="bi bi-facebook"></i></a>
+                        <a href="#"><i class="bi bi-instagram"></i></a>
+                        <a href="#"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#"><i class="bi bi-youtube"></i></a>
+                    </div>
                 </div>
             </div>
-            <div class="copyright text-center">
-                <p>&copy; {% now "Y" %} MTOR-COMPLEX</p>
+
+            <div class="footer-bottom">
+                <div class="legal-links">
+                    <a href="#">Términos y Condiciones</a>
+                    <span class="separator">|</span>
+                    <a href="#">Privacidad</a>
+                </div>
+                <p class="copyright"> 2024 MTOR-COMPLEX. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>
