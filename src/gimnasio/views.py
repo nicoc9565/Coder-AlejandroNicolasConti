@@ -9,6 +9,7 @@ from .models import *
 from .forms import RegistroForm, RutinaForm, RutinaEjercicioForm, EjercicioCompletadoForm, AlumnoForm
 from datetime import datetime, timedelta
 from django.http import JsonResponse
+from .models import RutinaEjercicio
 
 def es_profesor(user):
     if not user.is_authenticated:
@@ -447,7 +448,8 @@ def detalle_rutina(request, rutina_id):
         messages.error(request, 'No tienes permiso para ver esta rutina.')
         return redirect('gimnasio:index')
     
-    ejercicios = rutina.ejercicios.through.objects.filter(rutina=rutina).order_by('orden')
+    # Obtener los ejercicios de la rutina
+    ejercicios = RutinaEjercicio.objects.filter(rutina=rutina).order_by('orden')
     
     return render(request, 'gimnasio/rutinas/detalle_rutina.html', {
         'rutina': rutina,
@@ -713,6 +715,9 @@ def desactivar_rutina(request, rutina_id):
 
 @login_required
 def get_ejercicios_por_grupo(request):
-    grupo_muscular = request.GET.get('grupo_muscular')
-    ejercicios = Ejercicio.objects.filter(grupo_muscular=grupo_muscular).values('id', 'nombre')
+    grupo = request.GET.get('grupo')
+    if grupo:
+        ejercicios = Ejercicio.objects.filter(grupo_muscular=grupo).values('id', 'nombre')
+    else:
+        ejercicios = Ejercicio.objects.all().values('id', 'nombre')
     return JsonResponse(list(ejercicios), safe=False)

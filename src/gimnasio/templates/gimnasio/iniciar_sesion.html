@@ -1,78 +1,93 @@
 {% extends 'gimnasio/base.html' %}
+{% load static %}
 
 {% block titulo %}Iniciar Sesión{% endblock %}
 
+{% block navbar %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'gimnasio/css/styles.css' %}">
+{% endblock %}
+
 {% block contenido %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-body">
-                    <h2 class="text-center mb-4">Iniciar Sesión</h2>
-                    
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                    
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Nombre de Usuario</label>
-                            <input type="text" 
-                                   class="form-control" 
-                                   id="username" 
-                                   name="username" 
-                                   required 
-                                   autofocus>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Contraseña</label>
-                            <input type="password" 
-                                   class="form-control" 
-                                   id="password" 
-                                   name="password" 
-                                   required>
-                        </div>
-                        
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-                            </button>
-                        </div>
-                    </form>
-                    
-                    <hr class="my-4">
-                    
-                    <div class="text-center">
-                        <p class="mb-0">¿No tienes una cuenta?</p>
-                        <a href="{% url 'gimnasio:registro' %}" class="btn btn-link">Regístrate aquí</a>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Credenciales de Prueba -->
-            <div class="card mt-3">
-                <div class="card-body">
-                    <h5 class="card-title">Credenciales de Prueba</h5>
-                    <p class="card-text mb-2"><strong>Profesor:</strong></p>
-                    <ul class="list-unstyled ms-3 mb-3">
-                        <li>Usuario: profesor</li>
-                        <li>Contraseña: profesor123</li>
-                    </ul>
-                    <p class="card-text mb-2"><strong>Alumno:</strong></p>
-                    <ul class="list-unstyled ms-3">
-                        <li>Usuario: alumno</li>
-                        <li>Contraseña: alumno123</li>
-                    </ul>
-                </div>
-            </div>
+<div class="login-container">
+    <div class="login-box">
+        <div class="logo">
+            <img src="{% static 'gimnasio/images/mtor-complex.png' %}" alt="MTOR-Complex">
         </div>
+        
+        <h2>Bienvenido</h2>
+        <p class="subtitle">Inicia sesión para continuar</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="login-form">
+            {% csrf_token %}
+            
+            <div class="input-group">
+                <div class="input-field">
+                    <input type="text" 
+                           id="username" 
+                           name="username" 
+                           placeholder=" "
+                           required>
+                    <label for="username">Usuario</label>
+                    <i class="bi bi-person"></i>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <div class="input-field">
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           placeholder=" "
+                           required>
+                    <label for="password">Contraseña</label>
+                    <i class="bi bi-lock"></i>
+                    <button type="button" 
+                            class="toggle-password"
+                            onclick="togglePassword()">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="login-button">
+                Iniciar Sesión
+            </button>
+
+            <div class="additional-links">
+                <a href="{% url 'gimnasio:registro' %}" class="register-link">
+                    ¿No tienes cuenta? Regístrate aquí
+                </a>
+            </div>
+        </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function togglePassword() {
+        const input = document.getElementById('password');
+        const icon = document.querySelector('.toggle-password i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+</script>
 {% endblock %}

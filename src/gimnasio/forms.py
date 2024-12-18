@@ -50,36 +50,53 @@ class RutinaEjercicioForm(forms.ModelForm):
         ],
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    
+
     nombre_ejercicio = forms.CharField(
         max_length=100,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Ej: Peso Muerto Convencional'
+            'placeholder': 'Ej: Press de Banca, Sentadillas, etc.'
         })
     )
-    
+
     class Meta:
         model = RutinaEjercicio
-        fields = ['series', 'repeticiones', 'peso']
+        fields = ['series', 'repeticiones', 'peso', 'descanso', 'orden', 'notas']
         widgets = {
-            'series': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '10'}),
-            'repeticiones': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 8-12 o 15'}),
-            'peso': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 10kg o Peso corporal'}),
+            'series': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
+            'repeticiones': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 12 o 8-12'}),
+            'peso': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 10 kg o 8-12 kg'}),
+            'descanso': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 60 seg'}),
+            'orden': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
+            'notas': forms.Textarea(attrs={'class': 'form-control', 'rows': '2'}),
         }
         help_texts = {
             'series': 'Número de series a realizar',
             'repeticiones': 'Número o rango de repeticiones por serie',
-            'peso': 'Peso a utilizar (en kg) o "Peso corporal"',
+            'peso': 'Peso o rango de peso a utilizar',
+            'descanso': 'Tiempo de descanso entre series',
+            'orden': 'Orden del ejercicio en la rutina',
+            'notas': 'Instrucciones adicionales o notas',
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Filtrar ejercicios por grupo muscular cuando se seleccione
-        if 'grupo_muscular' in self.data:
-            self.fields['ejercicio'].queryset = Ejercicio.objects.filter(
-                grupo_muscular=self.data['grupo_muscular']
-            )
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        
+        # Crear o obtener el ejercicio
+        ejercicio, created = Ejercicio.objects.get_or_create(
+            nombre=self.cleaned_data['nombre_ejercicio'],
+            defaults={
+                'grupo_muscular': self.cleaned_data['grupo_muscular'],
+                'descripcion': ''  # Descripción vacía por defecto
+            }
+        )
+        
+        instance.ejercicio = ejercicio
+        
+        if commit:
+            instance.save()
+        
+        return instance
 
 class EjercicioCompletadoForm(forms.ModelForm):
     class Meta:

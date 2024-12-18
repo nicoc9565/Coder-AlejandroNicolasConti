@@ -4,159 +4,119 @@
 {% block titulo %}Mi Perfil - Profesor{% endblock %}
 
 {% block contenido %}
-<div class="container mt-4">
-    {% if messages %}
-    <div class="row">
-        <div class="col-12">
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
+<div class="page-content">
+    <div class="main-container">
+        <h1 class="page-title">Mi Perfil</h1>
 
-    <div class="row">
-        <!-- Perfil y Estadísticas -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <img src="{{ perfil.get_foto_url }}" 
-                         alt="Foto de perfil" 
-                         class="rounded-circle img-thumbnail mb-3"
-                         style="width: 150px; height: 150px; object-fit: cover;">
-                    
-                    <h3 class="card-title">{{ user.get_full_name }}</h3>
-                    <p class="text-muted mb-1">Administrador</p>
-                    <p class="card-text text-primary mb-3">{{ perfil.especialidad }}</p>
-                    
-                    {% if perfil.biografia %}
-                    <div class="mb-4">
-                        <h6 class="text-muted mb-2">Biografía</h6>
-                        <p class="card-text">{{ perfil.biografia }}</p>
-                    </div>
-                    {% endif %}
-                    
-                    <!-- Estadísticas -->
-                    <div class="row text-center mt-4">
-                        <div class="col">
-                            <h4>{{ total_alumnos }}</h4>
-                            <small class="text-muted">Alumnos</small>
-                        </div>
-                        <div class="col">
-                            <h4>{{ rutinas_activas }}</h4>
-                            <small class="text-muted">Rutinas Activas</small>
-                        </div>
-                    </div>
-
-                    <!-- Botón para editar perfil en móviles -->
-                    <div class="d-block d-md-none mt-4">
-                        <button class="btn btn-primary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#editarPerfil">
-                            <i class="fas fa-edit"></i> Editar Perfil
-                        </button>
-                    </div>
+        {% if messages %}
+        <div class="row mb-4">
+            <div class="col-12">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
+                {% endfor %}
             </div>
         </div>
-        
-        <!-- Formulario de Edición -->
-        <div class="col-md-8">
-            <div class="card collapse d-md-block" id="editarPerfil">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Editar Perfil</h5>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
+        {% endif %}
+
+        <div class="row">
+            <!-- Perfil y Estadísticas -->
+            <div class="col-md-4">
+                <div class="card shadow">
+                    <div class="card-body text-center">
+                        <img src="{{ perfil.get_foto_url }}" 
+                             alt="Foto de perfil" 
+                             class="rounded-circle img-thumbnail mb-3"
+                             style="width: 150px; height: 150px; object-fit: cover;">
                         
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Nombre</label>
-                                <input type="text" 
-                                       name="first_name" 
-                                       class="form-control" 
-                                       value="{{ user.first_name }}"
-                                       required>
+                        <h3 class="card-title">{{ user.get_full_name }}</h3>
+                        <p class="text-muted mb-1">Administrador</p>
+                        <p class="card-text text-primary mb-3">{{ perfil.especialidad }}</p>
+                        
+                        {% if perfil.biografia %}
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-2">Biografía</h6>
+                            <p class="card-text">{{ perfil.biografia }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Estadísticas -->
+                        <div class="row text-center mt-4">
+                            <div class="col">
+                                <h4>{{ total_alumnos }}</h4>
+                                <small class="text-muted">Alumnos</small>
                             </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Apellido</label>
-                                <input type="text" 
-                                       name="last_name" 
-                                       class="form-control" 
-                                       value="{{ user.last_name }}"
-                                       required>
+                            <div class="col">
+                                <h4>{{ rutinas_activas }}</h4>
+                                <small class="text-muted">Rutinas Activas</small>
                             </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" 
-                                   name="email" 
-                                   class="form-control" 
-                                   value="{{ user.email }}"
-                                   required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">URL de la Foto de Perfil</label>
-                            <input type="url" 
-                                   name="foto_url" 
-                                   class="form-control" 
-                                   value="{{ perfil.foto_url }}"
-                                   placeholder="https://ejemplo.com/imagen.jpg">
-                            <small class="text-muted">Ingresa la URL de una imagen (por ejemplo, de imgur o similar)</small>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Especialidad</label>
-                            <input type="text" 
-                                   name="especialidad" 
-                                   class="form-control" 
-                                   value="{{ perfil.especialidad }}"
-                                   placeholder="Ej: Entrenador Personal, Nutricionista"
-                                   required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Biografía</label>
-                            <textarea name="biografia" 
-                                     class="form-control" 
-                                     rows="4"
-                                     placeholder="Cuéntanos sobre tu experiencia y especialidades...">{{ perfil.biografia }}</textarea>
-                        </div>
-                        
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Guardar Cambios
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
 
-            <!-- Alumnos Recientes -->
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Alumnos Recientes</h5>
-                </div>
-                <div class="card-body">
-                    <div class="list-group list-group-flush">
-                        {% for alumno in alumnos_recientes %}
-                            <div class="list-group-item">
-                                <div class="d-flex w-100 justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-1">{{ alumno.get_full_name }}</h6>
-                                        <small class="text-muted">{{ alumno.email }}</small>
-                                    </div>
-                                    <small class="text-muted">{{ alumno.date_joined|date:"d/m/Y" }}</small>
+            <!-- Editar Perfil y Alumnos -->
+            <div class="col-md-8">
+                <div class="card shadow collapse d-md-block" id="editarPerfil">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0">Editar Perfil</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="first_name" class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="last_name" class="form-label">Apellido</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" required>
                                 </div>
                             </div>
-                        {% empty %}
-                            <p class="text-muted mb-0 text-center">No hay alumnos registrados aún</p>
-                        {% endfor %}
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="especialidad" class="form-label">Especialidad</label>
+                                <input type="text" class="form-control" id="especialidad" name="especialidad" value="{{ perfil.especialidad }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="biografia" class="form-label">Biografía</label>
+                                <textarea class="form-control" id="biografia" name="biografia" rows="3">{{ perfil.biografia }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="foto" class="form-label">Foto de Perfil</label>
+                                <input type="file" class="form-control" id="foto" name="foto">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card shadow mt-4">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="card-title mb-0">Alumnos Recientes</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if alumnos_recientes %}
+                            <div class="list-group">
+                                {% for alumno in alumnos_recientes %}
+                                    <a href="#" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">{{ alumno.nombre }}</h5>
+                                            <small class="text-muted">{{ alumno.fecha_registro|date:"d/m/Y" }}</small>
+                                        </div>
+                                        <p class="mb-1">{{ alumno.rutina_actual.nombre|default:"Sin rutina asignada" }}</p>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted mb-0">No hay alumnos registrados recientemente.</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
