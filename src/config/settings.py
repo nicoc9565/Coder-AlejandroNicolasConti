@@ -134,8 +134,8 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Auth settings
-LOGIN_URL = 'gimnasio:login'
-LOGIN_REDIRECT_URL = 'gimnasio:perfil'
+LOGIN_URL = 'gimnasio:iniciar_sesion'
+LOGIN_REDIRECT_URL = 'gimnasio:perfil_alumno'
 LOGOUT_REDIRECT_URL = 'gimnasio:index'
 
 # Messages settings

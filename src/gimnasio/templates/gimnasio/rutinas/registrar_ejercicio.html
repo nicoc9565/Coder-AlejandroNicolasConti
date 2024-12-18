@@ -1,0 +1,38 @@
+{% extends 'gimnasio/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Registrar Ejercicio Completado</h2>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Detalles del Ejercicio</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Ejercicio:</strong> {{ detalle.ejercicio.nombre }}</p>
+            <p><strong>Series Objetivo:</strong> {{ detalle.series }}</p>
+            <p><strong>Repeticiones por Serie:</strong> {{ detalle.repeticiones }}</p>
+            {% if detalle.peso %}
+                <p><strong>Peso Sugerido:</strong> {{ detalle.peso }} kg</p>
+            {% endif %}
+            {% if detalle.notas %}
+                <p><strong>Notas del Profesor:</strong> {{ detalle.notas }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Registrar Progreso</h5>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-success">Registrar como Completado</button>
+                <a href="{% url 'gimnasio:detalle_rutina' detalle.rutina.id %}" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

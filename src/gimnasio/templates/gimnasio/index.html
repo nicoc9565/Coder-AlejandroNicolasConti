@@ -12,7 +12,16 @@
                 {% if not user.is_authenticated %}
                     <div class="d-flex gap-3 justify-content-center">
                         <a href="{% url 'gimnasio:registro' %}" class="btn btn-primary btn-lg">Comenzar Ahora</a>
-                        <a href="{% url 'gimnasio:login' %}" class="btn btn-outline-light btn-lg">Iniciar Sesión</a>
+                        <a href="{% url 'gimnasio:iniciar_sesion' %}" class="btn btn-outline-light btn-lg">Iniciar Sesión</a>
+                    </div>
+                {% else %}
+                    <div class="d-grid gap-2 col-6 mx-auto">
+                        <a href="{% url 'gimnasio:perfil_alumno' %}" class="btn btn-primary">
+                            <i class="fas fa-user"></i> Mi Perfil
+                        </a>
+                        <a href="{% url 'gimnasio:logout' %}" class="btn btn-outline-danger">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </a>
                     </div>
                 {% endif %}
             </div>

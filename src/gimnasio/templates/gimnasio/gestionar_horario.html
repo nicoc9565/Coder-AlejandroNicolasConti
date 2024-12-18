@@ -1,0 +1,66 @@
+{% extends 'gimnasio/base.html' %}
+
+{% block titulo %}Gestionar Horario - {{ alumno.nombre }}{% endblock %}
+
+{% block contenido %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Gestionar Horario de {{ alumno.nombre }}</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Días de Asistencia -->
+                        <div class="mb-4">
+                            <label class="form-label">Días de Asistencia</label>
+                            <div class="row">
+                                {% for dia in dias_disponibles %}
+                                <div class="col-md-3 mb-2">
+                                    <div class="form-check">
+                                        <input type="checkbox" 
+                                               name="dias" 
+                                               value="{{ dia.id }}" 
+                                               class="form-check-input"
+                                               id="dia_{{ dia.id }}"
+                                               {% if dia in alumno.dias_asistencia.all %}checked{% endif %}>
+                                        <label class="form-check-label" for="dia_{{ dia.id }}">
+                                            {{ dia.dia }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Horario -->
+                        <div class="mb-4">
+                            <label class="form-label">Horario</label>
+                            <select name="horario" class="form-select">
+                                {% for valor, etiqueta in horarios %}
+                                <option value="{{ valor }}" {% if alumno.horario == valor %}selected{% endif %}>
+                                    {{ etiqueta }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'gimnasio:ver_alumnos' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Volver
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

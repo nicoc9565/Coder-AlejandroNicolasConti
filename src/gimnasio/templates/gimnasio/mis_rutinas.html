@@ -1,0 +1,53 @@
+{% extends 'gimnasio/base.html' %}
+
+{% block contenido %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Mis Rutinas</h2>
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if rutinas %}
+                <div class="row">
+                    {% for rutina in rutinas %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">{{ rutina.nombre }}</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        <strong>Profesor:</strong> {{ rutina.profesor.get_full_name|default:rutina.profesor.username }}
+                                    </p>
+                                    <p class="card-text">
+                                        <strong>Fecha de creación:</strong> {{ rutina.fecha_creacion|date:"d/m/Y" }}
+                                    </p>
+                                    <p class="card-text">
+                                        <strong>Ejercicios:</strong> {{ rutina.ejercicios.count }}
+                                    </p>
+                                    {% if rutina.descripcion %}
+                                        <p class="card-text">{{ rutina.descripcion }}</p>
+                                    {% endif %}
+                                    <a href="{% url 'gimnasio:detalle_rutina' rutina.id %}" class="btn btn-primary">Ver Detalles</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <p>Aún no tienes rutinas asignadas.</p>
+                    <p>Contacta con un profesor para que te asigne una rutina personalizada.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

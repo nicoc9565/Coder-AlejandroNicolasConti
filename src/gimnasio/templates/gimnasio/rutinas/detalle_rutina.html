@@ -1,0 +1,85 @@
+{% extends 'gimnasio/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Detalles de la Rutina</h2>
+        <a href="{% url 'gimnasio:mis_rutinas' %}" class="btn btn-secondary">Volver a Mis Rutinas</a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Información General</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Alumno:</strong> {{ rutina.alumno.nombre }}</p>
+                    <p><strong>Profesor:</strong> {{ rutina.profesor.get_full_name|default:rutina.profesor.username }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Fecha de creación:</strong> {{ rutina.fecha_creacion|date:"d/m/Y" }}</p>
+                    <p><strong>Última actualización:</strong> {{ rutina.fecha_actualizacion|date:"d/m/Y" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Ejercicios</h5>
+        </div>
+        <div class="card-body">
+            {% if ejercicios %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Orden</th>
+                                <th>Ejercicio</th>
+                                <th>Series</th>
+                                <th>Repeticiones</th>
+                                <th>Peso</th>
+                                <th>Notas</th>
+                                {% if not user.perfil.es_profesor %}
+                                    <th>Acciones</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detalle in ejercicios %}
+                            <tr>
+                                <td>{{ detalle.orden }}</td>
+                                <td>{{ detalle.ejercicio.nombre }}</td>
+                                <td>{{ detalle.series }}</td>
+                                <td>{{ detalle.repeticiones }}</td>
+                                <td>{% if detalle.peso %}{{ detalle.peso }} kg{% else %}-{% endif %}</td>
+                                <td>{{ detalle.notas|truncatechars:30 }}</td>
+                                {% if not user.perfil.es_profesor %}
+                                    <td>
+                                        <a href="{% url 'gimnasio:completar_ejercicio' detalle.id %}" 
+                                           class="btn btn-sm btn-success">
+                                            Marcar Completado
+                                        </a>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No hay ejercicios en esta rutina.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if user.perfil.es_profesor %}
+        <div class="mt-4">
+            <a href="{% url 'gimnasio:agregar_ejercicios_rutina' rutina.id %}" class="btn btn-primary">
+                Agregar Ejercicios
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

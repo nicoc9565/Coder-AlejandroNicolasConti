@@ -1,0 +1,110 @@
+{% extends 'gimnasio/base.html' %}
+
+{% block titulo %}Progreso - {{ alumno.nombre }}{% endblock %}
+
+{% block contenido %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Progreso de {{ alumno.nombre }}</h1>
+            
+            <!-- Resumen -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Peso Actual</h5>
+                            <p class="card-text display-4">{{ alumno.peso }} kg</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Ejercicios Completados</h5>
+                            <p class="card-text display-4">{{ ejercicios.count }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Registros de Progreso</h5>
+                            <p class="card-text display-4">{{ registros.count }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Historial de Peso -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Historial de Peso</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Peso</th>
+                                    <th>Notas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for registro in registros %}
+                                <tr>
+                                    <td>{{ registro.fecha|date:"d/m/Y" }}</td>
+                                    <td>{{ registro.peso }} kg</td>
+                                    <td>{{ registro.notas|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ejercicios Completados -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Ejercicios Completados</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Ejercicio</th>
+                                    <th>Series</th>
+                                    <th>Peso</th>
+                                    <th>Notas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ejercicio in ejercicios %}
+                                <tr>
+                                    <td>{{ ejercicio.fecha|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ ejercicio.detalle_rutina.ejercicio.nombre }}</td>
+                                    <td>{{ ejercicio.series_completadas }}</td>
+                                    <td>{{ ejercicio.peso_usado|default:"-" }} kg</td>
+                                    <td>{{ ejercicio.notas|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Botón Volver -->
+            <div class="mt-4">
+                <a href="{% url 'gimnasio:ver_alumnos' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver a la Lista de Alumnos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

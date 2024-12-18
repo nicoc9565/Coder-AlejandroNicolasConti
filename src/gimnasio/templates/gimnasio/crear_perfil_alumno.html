@@ -27,22 +27,29 @@
                         
                         <div class="mb-3">
                             <label for="nombre" class="form-label">Nombre Completo</label>
-                            <input type="text" class="form-control" id="nombre" name="nombre" value="{{ user.username }}" required>
+                            <input type="text" class="form-control" id="nombre" name="nombre" 
+                                   value="{{ user.get_full_name|default:user.username }}" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="edad" class="form-label">Edad</label>
-                            <input type="number" class="form-control" id="edad" name="edad" required>
+                            <label for="edad" class="form-label">Edad (años)</label>
+                            <input type="number" class="form-control" id="edad" name="edad" 
+                                   min="5" max="100" required>
+                            <div class="form-text">Debe estar entre 5 y 100 años</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="altura" class="form-label">Altura (cm)</label>
-                            <input type="number" class="form-control" id="altura" name="altura" required>
+                            <input type="number" class="form-control" id="altura" name="altura" 
+                                   min="100" max="250" required>
+                            <div class="form-text">Debe estar entre 100 y 250 cm</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="peso" class="form-label">Peso (kg)</label>
-                            <input type="number" step="0.1" class="form-control" id="peso" name="peso" required>
+                            <input type="number" step="0.1" class="form-control" id="peso" name="peso" 
+                                   min="30" max="300" required>
+                            <div class="form-text">Debe estar entre 30 y 300 kg</div>
                         </div>
 
                         <div class="mb-3">
@@ -55,7 +62,7 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Guardar Perfil</button>
+                            <button type="submit" class="btn btn-primary">Crear Perfil</button>
                         </div>
                     </form>
                 </div>

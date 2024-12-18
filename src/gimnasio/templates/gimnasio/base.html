@@ -18,6 +18,68 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'gimnasio/css/styles.css' %}">
     <link rel="icon" href="{% static 'gimnasio/images/mtor-complex.png' %}" type="image/x-icon">
+    <style>
+        /* Ajustes para el navbar */
+        body {
+            padding-top: 76px; /* Altura del navbar + un poco de espacio */
+        }
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+        .navbar-nav .nav-link {
+            position: relative;
+            padding: 0.5rem 1rem !important;
+            transition: color 0.3s ease;
+        }
+        .navbar-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            width: calc(100% - 2rem);
+            height: 2px;
+            background-color: #ffc107;
+            bottom: 5px;
+            left: 1rem;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            opacity: 0;
+        }
+        .navbar-nav .nav-link:hover::after,
+        .navbar-nav .nav-link.active::after {
+            transform: scaleX(1);
+            opacity: 1;
+        }
+        .navbar-nav .nav-link.active {
+            color: #fff !important;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #ffc107 !important;
+        }
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                background-color: #212529;
+                padding: 1rem;
+                border-radius: 0.25rem;
+                margin-top: 0.5rem;
+            }
+            .navbar-nav .nav-link {
+                padding: 0.75rem 1rem !important;
+                border-radius: 0.25rem;
+            }
+            .navbar-nav .nav-link::after {
+                display: none;
+            }
+            .navbar-nav .nav-link:hover {
+                background-color: rgba(255,255,255,.1);
+            }
+            .navbar-nav .nav-item {
+                margin: 2px 0;
+            }
+            .navbar-nav .nav-link.active {
+                background-color: #ffc107;
+                color: #212529 !important;
+            }
+        }
+    </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
     <!-- Navbar -->
@@ -27,33 +89,68 @@
                 <img src="{% static 'gimnasio/images/mtor-complex.png' %}" alt="MTOR-COMPLEX" height="35" class="me-2">
                 <span>MTOR-COMPLEX</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'gimnasio:index' %}">Inicio</a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}" 
+                           href="{% url 'gimnasio:index' %}">
+                           <i class="bi bi-house-door"></i> Inicio
+                        </a>
                     </li>
                     {% if user.is_authenticated %}
                         {% if user.perfil and user.perfil.es_profesor %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'gimnasio:panel_profesor' %}">Panel de Control</a>
+                                <a class="nav-link {% if request.resolver_match.url_name == 'panel_profesor' %}active{% endif %}" 
+                                   href="{% url 'gimnasio:panel_profesor' %}">
+                                   <i class="bi bi-speedometer2"></i> Panel de Control
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'perfil_profesor' %}active{% endif %}" 
+                                   href="{% url 'gimnasio:perfil_profesor' %}">
+                                   <i class="bi bi-person-circle"></i> Mi Perfil
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'mis_rutinas' %}active{% endif %}" 
+                                   href="{% url 'gimnasio:mis_rutinas' %}">
+                                   <i class="bi bi-list-check"></i> Gestionar Rutinas
+                                </a>
                             </li>
                         {% else %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'gimnasio:perfil_alumno' %}">Mi Perfil</a>
+                                <a class="nav-link {% if request.resolver_match.url_name == 'perfil_alumno' %}active{% endif %}" 
+                                   href="{% url 'gimnasio:perfil_alumno' %}">
+                                   <i class="bi bi-person"></i> Mi Perfil
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'mis_rutinas' %}active{% endif %}" 
+                                   href="{% url 'gimnasio:mis_rutinas' %}">
+                                   <i class="bi bi-calendar-check"></i> Mis Rutinas
+                                </a>
                             </li>
                         {% endif %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'gimnasio:logout' %}">Cerrar Sesión</a>
+                            <a class="nav-link" href="{% url 'gimnasio:logout' %}">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                            </a>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'gimnasio:registro' %}">Registro</a>
+                            <a class="nav-link {% if request.resolver_match.url_name == 'iniciar_sesion' %}active{% endif %}" 
+                               href="{% url 'gimnasio:iniciar_sesion' %}">
+                               <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'gimnasio:login' %}">Iniciar Sesión</a>
+                            <a class="nav-link {% if request.resolver_match.url_name == 'registro' %}active{% endif %}" 
+                               href="{% url 'gimnasio:registro' %}">
+                               <i class="bi bi-person-plus"></i> Registrarse
+                            </a>
                         </li>
                     {% endif %}
                 </ul>

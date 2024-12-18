@@ -1,0 +1,69 @@
+{% extends 'gimnasio/base.html' %}
+
+{% block titulo %}Mis Rutinas{% endblock %}
+
+{% block contenido %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Mis Rutinas</h2>
+        {% if user.perfil.es_profesor %}
+            <a href="{% url 'gimnasio:ver_alumnos' %}" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> Crear Rutina para Alumno
+            </a>
+        {% endif %}
+    </div>
+
+    {% if rutinas %}
+        <div class="row">
+            {% for rutina in rutinas %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                Rutina #{{ rutina.id }}
+                                {% if rutina.activa %}
+                                    <span class="badge bg-success">Activa</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactiva</span>
+                                {% endif %}
+                            </h5>
+                            {% if user.perfil.es_profesor %}
+                                <p class="card-text">Alumno: {{ rutina.alumno.nombre }}</p>
+                            {% else %}
+                                <p class="card-text">Profesor: {{ rutina.profesor.get_full_name|default:rutina.profesor.username }}</p>
+                            {% endif %}
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    Creada: {{ rutina.fecha_creacion|date:"d/m/Y" }}<br>
+                                    Última actualización: {{ rutina.fecha_actualizacion|date:"d/m/Y" }}
+                                </small>
+                            </p>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'gimnasio:detalle_rutina' rutina.id %}" class="btn btn-primary">
+                                    <i class="bi bi-eye"></i> Ver Detalles
+                                </a>
+                                {% if user.perfil.es_profesor %}
+                                    <a href="{% url 'gimnasio:agregar_ejercicios_rutina' rutina.id %}" class="btn btn-success">
+                                        <i class="bi bi-plus-circle"></i> Añadir Ejercicios
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            {% if user.perfil.es_profesor %}
+                <p>No has creado ninguna rutina aún.</p>
+                <a href="{% url 'gimnasio:ver_alumnos' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> Crear Primera Rutina
+                </a>
+            {% else %}
+                <p>No tienes rutinas asignadas. Contacta a tu profesor para que te asigne una rutina.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

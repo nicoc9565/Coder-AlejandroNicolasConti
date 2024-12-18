@@ -1,0 +1,144 @@
+{% extends 'gimnasio/base.html' %}
+{% load static %}
+
+{% block titulo %}Gestionar Ejercicios{% endblock %}
+
+{% block contenido %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Gestionar Ejercicios</h2>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoEjercicioModal">
+                    <i class="bi bi-plus-lg"></i> Nuevo Ejercicio
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Ejercicios -->
+    <div class="row">
+        <div class="col-12">
+            <div class="accordion" id="ejerciciosAccordion">
+                {% for grupo, ejercicios in ejercicios_por_grupo.items %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#grupo{{ forloop.counter }}">
+                            {{ grupo }} ({{ ejercicios|length }})
+                        </button>
+                    </h2>
+                    <div id="grupo{{ forloop.counter }}" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                                {% for ejercicio in ejercicios %}
+                                <div class="col">
+                                    <div class="card h-100">
+                                        {% if ejercicio.imagen_url %}
+                                        <img src="{{ ejercicio.imagen_url }}" class="card-img-top" alt="{{ ejercicio.nombre }}" style="height: 200px; object-fit: cover;">
+                                        {% endif %}
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ ejercicio.nombre }}</h5>
+                                            <p class="card-text">{{ ejercicio.descripcion|truncatewords:30 }}</p>
+                                            {% if ejercicio.video_url %}
+                                            <a href="{{ ejercicio.video_url }}" target="_blank" class="btn btn-sm btn-outline-primary mb-2">
+                                                <i class="bi bi-play-circle"></i> Ver Video
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-footer bg-transparent">
+                                            <div class="btn-group w-100">
+                                                <a href="{% url 'gimnasio:editar_ejercicio' ejercicio.id %}" class="btn btn-outline-primary">
+                                                    <i class="bi bi-pencil"></i> Editar
+                                                </a>
+                                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#eliminarEjercicio{{ ejercicio.id }}">
+                                                    <i class="bi bi-trash"></i> Eliminar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Modal Eliminar -->
+                                <div class="modal fade" id="eliminarEjercicio{{ ejercicio.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Confirmar Eliminación</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>¿Estás seguro de que deseas eliminar el ejercicio "{{ ejercicio.nombre }}"?</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <form action="{% url 'gimnasio:eliminar_ejercicio' ejercicio.id %}" method="post" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="alert alert-info">
+                    No hay ejercicios creados aún. ¡Comienza creando uno nuevo!
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nuevo Ejercicio -->
+<div class="modal fade" id="nuevoEjercicioModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo Ejercicio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre del Ejercicio</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="grupo_muscular" class="form-label">Grupo Muscular</label>
+                        <select class="form-select" id="grupo_muscular" name="grupo_muscular" required>
+                            <option value="">Selecciona un grupo muscular</option>
+                            {% for grupo in grupos_musculares %}
+                            <option value="{{ grupo }}">{{ grupo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="imagen_url" class="form-label">URL de la Imagen (opcional)</label>
+                        <input type="url" class="form-control" id="imagen_url" name="imagen_url">
+                        <small class="text-muted">URL de una imagen que muestre el ejercicio</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="video_url" class="form-label">URL del Video (opcional)</label>
+                        <input type="url" class="form-control" id="video_url" name="video_url">
+                        <small class="text-muted">URL de un video demostrativo del ejercicio</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Crear Ejercicio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends 'gimnasio/base.html' %}
+
+{% block contenido %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Gestionar Rutinas - {{ alumno.nombre }}</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaRutinaModal">
+                    <i class="fas fa-plus"></i> Nueva Rutina
+                </button>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Lista de Rutinas -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Rutinas Actuales</h5>
+                </div>
+                <div class="card-body">
+                    {% if rutinas %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Fecha de Creación</th>
+                                        <th>Estado</th>
+                                        <th>Ejercicios</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for rutina in rutinas %}
+                                        <tr>
+                                            <td>{{ rutina.nombre }}</td>
+                                            <td>{{ rutina.fecha_creacion|date:"d/m/Y" }}</td>
+                                            <td>
+                                                {% if rutina.activa %}
+                                                    <span class="badge bg-success">Activa</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Inactiva</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ rutina.ejercicios.count }}</td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{% url 'gimnasio:agregar_ejercicios_rutina' rutina.id %}" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-edit"></i> Editar
+                                                    </a>
+                                                    {% if rutina.activa %}
+                                                        <form method="post" action="{% url 'gimnasio:desactivar_rutina' rutina.id %}" class="d-inline">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-sm btn-warning">
+                                                                <i class="fas fa-pause"></i> Pausar
+                                                            </button>
+                                                        </form>
+                                                    {% else %}
+                                                        <form method="post" action="{% url 'gimnasio:activar_rutina' rutina.id %}" class="d-inline">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-sm btn-success">
+                                                                <i class="fas fa-play"></i> Activar
+                                                            </button>
+                                                        </form>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            No hay rutinas creadas para este alumno.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nueva Rutina -->
+<div class="modal fade" id="nuevaRutinaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Rutina</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="alert alert-danger">
+                                    {{ field.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Crear Rutina</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

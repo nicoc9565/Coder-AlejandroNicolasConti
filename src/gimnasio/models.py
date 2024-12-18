@@ -1,22 +1,22 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class DiaAsistencia(models.Model):
-    dia = models.CharField(
-        max_length=20,
-        choices=[
-            ("Lunes", "Lunes"),
-            ("Martes", "Martes"),
-            ("Miércoles", "Miércoles"),
-            ("Jueves", "Jueves"),
-            ("Viernes", "Viernes"),
-            ("Sábado", "Sábado"),
-            ("Domingo", "Domingo"),
-        ],
-    )
-
+    DIAS_CHOICES = [
+        ('LUN', 'Lunes'),
+        ('MAR', 'Martes'),
+        ('MIE', 'Miércoles'),
+        ('JUE', 'Jueves'),
+        ('VIE', 'Viernes'),
+        ('SAB', 'Sábado'),
+        ('DOM', 'Domingo'),
+    ]
+    
+    dia = models.CharField(max_length=3, choices=DIAS_CHOICES, unique=True)
+    
     def __str__(self):
-        return self.dia
+        return self.get_dia_display()
 
     class Meta:
         verbose_name = "Día de Asistencia"
@@ -26,36 +26,46 @@ class Perfil(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     es_profesor = models.BooleanField(default=False)
     fecha_registro = models.DateTimeField(auto_now_add=True)
+    foto_url = models.URLField(blank=True, null=True)
+    biografia = models.TextField(blank=True)
+    especialidad = models.CharField(max_length=100, blank=True)
     
     def __str__(self):
-        return f"{self.usuario.username} - {'Profesor' if self.es_profesor else 'Alumno'}"
+        return f"{self.usuario.get_full_name() or self.usuario.username} - {'Profesor' if self.es_profesor else 'Alumno'}"
+
+    def get_foto_url(self):
+        if self.foto_url:
+            return self.foto_url
+        return '/static/gimnasio/images/default-profile.png'
 
     class Meta:
         verbose_name = "Perfil"
         verbose_name_plural = "Perfiles"
 
 class Alumno(models.Model):
-    usuario = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-    nombre = models.CharField(max_length=100)  # Mantenemos el campo nombre para compatibilidad
-    edad = models.PositiveIntegerField()
-    altura = models.DecimalField(max_digits=5, decimal_places=2)
-    peso = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=100)
+    edad = models.IntegerField()
+    altura = models.FloatField(help_text='Altura en centímetros')
+    peso = models.FloatField(help_text='Peso en kilogramos')
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+    activo = models.BooleanField(default=True)
+    profesor = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='alumnos_asignados'
+    )
     dias_asistencia = models.ManyToManyField(DiaAsistencia, blank=True)
-    horario = models.CharField(max_length=20, choices=[
-        ('Mañana', 'Mañana'),
-        ('Tarde', 'Tarde'),
-        ('Noche', 'Noche')
-    ], default='Mañana')
-    cuota_pagada = models.BooleanField(default=False)
 
     def __str__(self):
-        if self.usuario:
-            return self.usuario.get_full_name() or self.usuario.username
-        return self.nombre
+        return f"{self.nombre} ({self.usuario.username})"
 
     class Meta:
         verbose_name = "Alumno"
         verbose_name_plural = "Alumnos"
+        ordering = ['nombre']
 
 class CategoriaEjercicio(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
@@ -71,7 +81,11 @@ class CategoriaEjercicio(models.Model):
 class Ejercicio(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
-    categoria = models.ForeignKey(CategoriaEjercicio, on_delete=models.CASCADE, related_name='ejercicios')
+    grupo_muscular = models.CharField(max_length=50, default='General')
+    imagen_url = models.URLField(blank=True, null=True)
+    video_url = models.URLField(blank=True, null=True)
+    creado_por = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    fecha_creacion = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.nombre
@@ -79,51 +93,54 @@ class Ejercicio(models.Model):
     class Meta:
         verbose_name = "Ejercicio"
         verbose_name_plural = "Ejercicios"
-        unique_together = ['nombre', 'categoria']
+        ordering = ['nombre']
 
 class Rutina(models.Model):
+    nombre = models.CharField(max_length=100, default='Nueva Rutina')
+    descripcion = models.TextField(blank=True)
     alumno = models.ForeignKey(Alumno, on_delete=models.CASCADE, related_name='rutinas')
     profesor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rutinas_asignadas')
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
-    ejercicios = models.ManyToManyField(Ejercicio, through='DetalleRutina')
+    ejercicios = models.ManyToManyField(Ejercicio, through='RutinaEjercicio')
     activa = models.BooleanField(default=True)
     
     def __str__(self):
-        return f"Rutina de {self.alumno} - {self.fecha_creacion.strftime('%Y-%m-%d')}"
+        return f"{self.nombre} - {self.alumno}"
 
     class Meta:
         verbose_name = "Rutina"
         verbose_name_plural = "Rutinas"
         ordering = ['-fecha_creacion']
 
-class DetalleRutina(models.Model):
-    rutina = models.ForeignKey(Rutina, on_delete=models.CASCADE, related_name='detalles')
+class RutinaEjercicio(models.Model):
+    rutina = models.ForeignKey(Rutina, on_delete=models.CASCADE)
     ejercicio = models.ForeignKey(Ejercicio, on_delete=models.CASCADE)
-    series = models.PositiveIntegerField()
-    repeticiones = models.PositiveIntegerField()
-    peso = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    series = models.IntegerField()
+    repeticiones = models.CharField(max_length=50)  # Permite rangos como "8-12"
+    peso = models.CharField(max_length=50, blank=True)  # Permite rangos o "Peso corporal"
+    descanso = models.CharField(max_length=50)  # Ejemplo: "60 segundos"
+    orden = models.IntegerField()
     notas = models.TextField(blank=True)
-    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Ejercicio de Rutina"
+        verbose_name_plural = "Ejercicios de Rutina"
+        ordering = ['orden']
 
     def __str__(self):
         return f"{self.ejercicio.nombre} - {self.series}x{self.repeticiones}"
 
-    class Meta:
-        verbose_name = "Detalle de Rutina"
-        verbose_name_plural = "Detalles de Rutinas"
-        ordering = ['orden']
-
 class EjercicioCompletado(models.Model):
     alumno = models.ForeignKey(Alumno, on_delete=models.CASCADE, related_name='ejercicios_completados')
-    detalle_rutina = models.ForeignKey(DetalleRutina, on_delete=models.CASCADE)
-    fecha = models.DateTimeField(auto_now_add=True)
+    rutina_ejercicio = models.ForeignKey(RutinaEjercicio, on_delete=models.CASCADE, null=True)
+    fecha = models.DateTimeField(default=timezone.now)
     series_completadas = models.PositiveIntegerField()
     peso_usado = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     notas = models.TextField(blank=True)
 
     def __str__(self):
-        return f"{self.alumno} - {self.detalle_rutina.ejercicio} - {self.fecha.strftime('%Y-%m-%d')}"
+        return f"{self.alumno} - {self.rutina_ejercicio} - {self.fecha}"
 
     class Meta:
         verbose_name = "Ejercicio Completado"

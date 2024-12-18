@@ -1,0 +1,51 @@
+{% extends 'gimnasio/base.html' %}
+
+{% block titulo %}Mis Alumnos{% endblock %}
+
+{% block contenido %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Mis Alumnos</h2>
+    </div>
+
+    {% if alumnos %}
+        <div class="row">
+            {% for alumno in alumnos %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ alumno.nombre }}</h5>
+                            <p class="card-text">
+                                {% if alumno.usuario %}
+                                    <strong>Email:</strong> {{ alumno.usuario.email }}<br>
+                                {% endif %}
+                                <strong>Edad:</strong> {{ alumno.edad|default:"No especificada" }} años<br>
+                                <strong>Altura:</strong> {{ alumno.altura|default:"No especificada" }} cm<br>
+                                <strong>Peso:</strong> {{ alumno.peso|default:"No especificado" }} kg
+                            </p>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'gimnasio:crear_rutina' alumno.id %}" class="btn btn-primary">
+                                    <i class="bi bi-plus-lg"></i> Crear Rutina
+                                </a>
+                                <a href="{% url 'gimnasio:ver_progreso' alumno.id %}" class="btn btn-info">
+                                    <i class="bi bi-graph-up"></i> Ver Progreso
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p>No tienes alumnos asignados aún. Para asignar un alumno, primero debes crear una rutina para él.</p>
+        </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{% url 'gimnasio:mis_rutinas' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a Mis Rutinas
+        </a>
+    </div>
+</div>
+{% endblock %}

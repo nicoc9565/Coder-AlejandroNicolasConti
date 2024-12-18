@@ -72,6 +72,36 @@ Sigue estos pasos para probar el proyecto en tu entorno local:
 
 ---
 
+## Usuarios de Prueba
+
+Para probar el sistema, se han creado dos usuarios con diferentes roles:
+
+### Usuario Profesor (Administrador)
+- **Username:** profesor
+- **Password:** profesor123
+- **Email:** profesor@mtor-complex.com
+- **Permisos:** Acceso completo al sistema (administración de rutinas, pagos, etc.)
+
+### Usuario Alumno
+- **Username:** alumno
+- **Password:** alumno123
+- **Email:** alumno@example.com
+- **Permisos:** Acceso a perfil personal, rutinas asignadas y estado de cuenta
+
+### El profesor tiene acceso completo al sistema y puede:
+- **Gestionar rutinas**
+- **Manejar pagos**
+- **Agregar o modificar rutinas**
+- **Acceder al panel de administración**
+
+### El alumno puede:
+- **Ver su perfil**
+- **Ver sus rutinas asignadas**
+- **Verificar su estado de cuenta**
+- **Marcar ejercicios como completados**
+
+---
+
 ## Estructura del Proyecto
 
 ```
