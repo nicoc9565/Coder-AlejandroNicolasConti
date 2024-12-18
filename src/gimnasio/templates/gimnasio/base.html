@@ -3,71 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MTOR-COMPLEX - Tu gimnasio de confianza para alcanzar tus objetivos fitness">
+    <title>MTOR-COMPLEX - {% block titulo %}{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Custom CSS -->
     {% load static %}
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'gimnasio/css/styles.css' %}">
-    <link rel="icon" href="{% static 'gimnasio/images/mtor-complex.webp' %}" type="image/x-icon">
-    <title>MTOR-COMPLEX</title>
+    <link rel="icon" href="{% static 'gimnasio/images/mtor-complex.png' %}" type="image/x-icon">
 </head>
 <body>
-    <header>
-        <div class="">
-            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                <div class="container-fluid">
-                    <a href="{% url 'gimnasio:index' %}" class="navbar-brand">Mtor-Complex</a>
-                    <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse bg-dark" id="navbarCollapse">
-                        <div class="navbar-nav">
-                            <a href="{% url 'gimnasio:index' %}" class="nav-item nav-link">Inicio</a>
-                            <a href="{% url 'gimnasio:alumno-list' %}" class="nav-item nav-link">Alumnos</a>
-                            <a href="{% url 'gimnasio:alumno-create' %}" class="nav-item nav-link">Registrar Alumno</a>
-                        </div>
-                        <div class="navbar-nav ms-auto">
-                            <a href="#" class="nav-item nav-link">Login</a>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'gimnasio:index' %}">
+                <img src="{% static 'gimnasio/images/mtor-complex.png' %}" alt="MTOR-COMPLEX" height="35" class="me-2">
+                <span>MTOR-COMPLEX</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'gimnasio:index' %}">Inicio</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        {% if user.perfil and user.perfil.es_profesor %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'gimnasio:panel_profesor' %}">Panel de Control</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'gimnasio:alumno-list' %}">Alumnos</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'gimnasio:perfil_alumno' %}">Mi Perfil</a>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'gimnasio:logout' %}">Cerrar Sesión</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'gimnasio:registro' %}">Registro</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'gimnasio:login' %}">Iniciar Sesión</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
-    </header>
+    </nav>
 
+    <!-- Main Content -->
     <main>
-        {% block contenido %}
-        {% endblock %}
+        {% block contenido %}{% endblock %}
     </main>
 
-    <footer class="bg-dark text-light py-4">
-        <div class="container text-center">
+    <!-- Footer -->
+    <footer class="mt-4">
+        <div class="container">
             <div class="row">
-                <div class="col-md-4">
-                    <h5>MTOR COMPLEX</h5>
-                    <p>Transforma tu cuerpo y tu vida con nosotros.</p>
+                <div class="col-md-4 mb-3" data-aos="fade-up" data-aos-delay="100">
+                    <h5>MTOR-COMPLEX</h5>
+                    <p>Transformando vidas a través del fitness y el bienestar.</p>
+                    <div class="social-icons">
+                        <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
+                    </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 mb-3" data-aos="fade-up" data-aos-delay="200">
+                    <h5>Enlaces Útiles</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'gimnasio:index' %}"><i class="bi bi-chevron-right"></i>Inicio</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i>Servicios</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i>Horarios</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i>Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-3" data-aos="fade-up" data-aos-delay="300">
                     <h5>Contacto</h5>
-                    <p><strong>Teléfono:</strong> +54 9 3743 44-3319</p>
-                    <p><strong>Dirección:</strong> Mariano Moreno 2128, Posadas, Misiones</p>
-                    <p><strong>Email:</strong> contacto@mtorcomplex.com</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Seguinos</h5>
-                    <a href="https://instagram.com/mtorcomplex" class="text-light" target="_blank">
-                        <i class="bi bi-instagram"></i> Instagram
-                    </a>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-geo-alt"></i>Av. Siempreviva 742</li>
+                        <li><i class="bi bi-telephone"></i>+54 11 1234-5678</li>
+                        <li><i class="bi bi-envelope"></i>info@mtor-complex.com</li>
+                    </ul>
                 </div>
             </div>
-            <hr class="bg-light">
-            <p>&copy; 2024 MTOR COMPLEX. Todos los derechos reservados.</p>
+            <div class="copyright text-center">
+                <p>&copy; {% now "Y" %} MTOR-COMPLEX</p>
+            </div>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+    </script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

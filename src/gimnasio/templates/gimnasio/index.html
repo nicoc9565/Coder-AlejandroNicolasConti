@@ -2,16 +2,190 @@
 {% load static %}
 
 {% block contenido %}
-    <div class="text-center mt-5">
-        <img src="{% static 'gimnasio/images/mtor-complex.webp' %}" alt="Logo del Gym" class="img-fluid mb-4" style="max-width: 300px;">
-        <h1 class="display-1">Bienvenido a MTOR-COMPLEX</h1>
-        <p class="lead display-6">¡Transforma tu cuerpo y tu vida con nosotros!</p>
-    </div>
-    <section class="">
-        <div class="text-center mt-5">
-            <h1 class="display-3">Acerca de Mi</h1>
-            <p lass="lead display-6">Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente eligendi omnis quidem! At eum quasi delectus ab sit ducimus? Ipsam, iusto accusantium! Magni quae quasi quas, et aspernatur atque hic.</p>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container h-100">
+        <div class="row h-100 align-items-center">
+            <div class="col-lg-8 mx-auto text-center text-white">
+                <h1 class="display-4 fw-bold mb-4">MTOR-COMPLEX</h1>
+                <p class="lead mb-5">Transforma tu cuerpo, alcanza tus metas y supera tus límites con nuestro programa personalizado de entrenamiento.</p>
+                {% if not user.is_authenticated %}
+                    <div class="d-flex gap-3 justify-content-center">
+                        <a href="{% url 'gimnasio:registro' %}" class="btn btn-primary btn-lg">Comenzar Ahora</a>
+                        <a href="{% url 'gimnasio:login' %}" class="btn btn-outline-light btn-lg">Iniciar Sesión</a>
+                    </div>
+                {% endif %}
+            </div>
         </div>
-    </section>
-{% endblock contenido %}
+    </div>
+</section>
 
+<!-- Features Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">¿Por qué elegirnos?</h2>
+                <p class="lead text-muted">Descubre los beneficios que te ofrece MTOR-COMPLEX</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon-wrapper mb-3">
+                            <i class="bi bi-person-check-fill text-primary display-5"></i>
+                        </div>
+                        <h3 class="h4 mb-3">Entrenadores Expertos</h3>
+                        <p class="text-muted mb-0">Nuestro equipo de profesionales certificados te guiará en cada paso de tu transformación.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon-wrapper mb-3">
+                            <i class="bi bi-clipboard2-pulse-fill text-primary display-5"></i>
+                        </div>
+                        <h3 class="h4 mb-3">Rutinas Personalizadas</h3>
+                        <p class="text-muted mb-0">Programas de entrenamiento diseñados específicamente para tus objetivos y nivel de condición física.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon-wrapper mb-3">
+                            <i class="bi bi-graph-up-arrow text-primary display-5"></i>
+                        </div>
+                        <h3 class="h4 mb-3">Seguimiento Continuo</h3>
+                        <p class="text-muted mb-0">Monitoreo constante de tu progreso y ajustes en tiempo real para maximizar resultados.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <img src="{% static 'gimnasio/images/mtor-complex.png' %}" alt="Sobre MTOR-COMPLEX" class="img-fluid rounded shadow">
+            </div>
+            <div class="col-lg-6">
+                <h2 class="display-5 fw-bold mb-4">Sobre MTOR-COMPLEX</h2>
+                <p class="lead mb-4">En MTOR-COMPLEX, nos dedicamos a ayudarte a alcanzar tu mejor versión a través de un enfoque integral del fitness y el bienestar.</p>
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                        Instalaciones de última generación
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                        Entrenadores certificados internacionalmente
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                        Programas adaptados a tus necesidades
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                        Asesoramiento nutricional personalizado
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h2 class="display-5 fw-bold mb-4">¿Listo para comenzar?</h2>
+                <p class="lead mb-4">Únete a nuestra comunidad y comienza tu transformación hoy mismo.</p>
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'gimnasio:registro' %}" class="btn btn-light btn-lg px-5">Registrarse Ahora</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">Lo que dicen nuestros clientes</h2>
+                <p class="lead text-muted">Historias de éxito de nuestra comunidad</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-center mb-3">
+                            <i class="bi bi-star-fill text-warning me-1"></i>
+                            <i class="bi bi-star-fill text-warning me-1"></i>
+                            <i class="bi bi-star-fill text-warning me-1"></i>
+                            <i class="bi bi-star-fill text-warning me-1"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                        </div>
+                        <p class="mb-4">"Increíble experiencia. Los entrenadores son muy profesionales y el ambiente es muy motivador. He logrado resultados que nunca pensé posibles."</p>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <div class="text-center">
+                                <h6 class="fw-bold mb-0">Juan Pérez</h6>
+                                <small class="text-muted">Miembro desde 2023</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-center mb-3">
+                            <i class="bi bi-star-fill text-warning me-1"></i>
+                            <i class="bi bi-star-fill text-warning me-1"></i>
+                            <i class="bi bi-star-fill text-warning me-1"></i>
+                            <i class="bi bi-star-fill text-warning me-1"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                        </div>
+                        <p class="mb-4">"El seguimiento personalizado y la atención a los detalles hacen la diferencia. Mi transformación ha sido completa, tanto física como mentalmente."</p>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <div class="text-center">
+                                <h6 class="fw-bold mb-0">María González</h6>
+                                <small class="text-muted">Miembro desde 2023</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-center mb-3">
+                            <i class="bi bi-star-fill text-warning me-1"></i>
+                            <i class="bi bi-star-fill text-warning me-1"></i>
+                            <i class="bi bi-star-fill text-warning me-1"></i>
+                            <i class="bi bi-star-fill text-warning me-1"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                        </div>
+                        <p class="mb-4">"Las instalaciones son excelentes y el ambiente es muy acogedor. Los entrenadores realmente se preocupan por tu progreso y bienestar."</p>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <div class="text-center">
+                                <h6 class="fw-bold mb-0">Carlos Rodríguez</h6>
+                                <small class="text-muted">Miembro desde 2023</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

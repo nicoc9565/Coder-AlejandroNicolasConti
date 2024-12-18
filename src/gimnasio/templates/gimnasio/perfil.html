@@ -1,0 +1,83 @@
+{% extends 'gimnasio/base.html' %}
+
+{% block contenido %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Perfil de {{ user.get_full_name|default:user.username }}</h3>
+                </div>
+                <div class="card-body">
+                    {% if alumno %}
+                        <p><strong>Edad:</strong> {{ alumno.edad }} años</p>
+                        <p><strong>Altura:</strong> {{ alumno.altura }} cm</p>
+                        <p><strong>Peso:</strong> {{ alumno.peso }} kg</p>
+                        <p><strong>Horario:</strong> {{ alumno.horario }}</p>
+                        <p><strong>Estado de cuota:</strong> 
+                            {% if alumno.cuota_pagada %}
+                                <span class="badge bg-success">Pagada</span>
+                            {% else %}
+                                <span class="badge bg-danger">Pendiente</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Días de asistencia:</strong></p>
+                        <ul>
+                            {% for dia in alumno.dias_asistencia.all %}
+                                <li>{{ dia.dia }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Por favor, completa tu perfil de alumno:</p>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="edad" class="form-label">Edad</label>
+                                <input type="number" class="form-control" id="edad" name="edad" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="altura" class="form-label">Altura (cm)</label>
+                                <input type="number" step="0.01" class="form-control" id="altura" name="altura" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="peso" class="form-label">Peso (kg)</label>
+                                <input type="number" step="0.01" class="form-control" id="peso" name="peso" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="horario" class="form-label">Horario preferido</label>
+                                <input type="time" class="form-control" id="horario" name="horario" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Guardar Perfil</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Mis Rutinas</h3>
+                </div>
+                <div class="card-body">
+                    {% if rutinas %}
+                        <div class="list-group">
+                            {% for rutina in rutinas %}
+                                <a href="{% url 'gimnasio:ver_rutina' rutina.id %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">Rutina del {{ rutina.fecha_creacion|date:"d/m/Y" }}</h5>
+                                        <small>Asignada por: {{ rutina.profesor.get_full_name }}</small>
+                                    </div>
+                                    <p class="mb-1">Última actualización: {{ rutina.fecha_actualizacion|date:"d/m/Y H:i" }}</p>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>Aún no tienes rutinas asignadas.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
