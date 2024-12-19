@@ -8,7 +8,6 @@
         <div class="col-12">
             <h1 class="mb-4">Panel del Profesor</h1>
             
-            <!-- Estadísticas Generales -->
             <div class="row mb-4">
                 <div class="col-md-4">
                     <div class="card bg-primary text-white">
@@ -36,7 +35,6 @@
                 </div>
             </div>
 
-            <!-- Acciones Rápidas -->
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="card">
@@ -55,7 +53,6 @@
                 </div>
             </div>
 
-            <!-- Lista de Alumnos -->
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Alumnos Recientes</h5>
@@ -102,21 +99,14 @@
                                             <a href="{% url 'gimnasio:crear_rutina_alumno' alumno.id %}" class="btn btn-sm btn-primary">
                                                 <i class="fas fa-plus"></i> Rutina
                                             </a>
-                                            <a href="{% url 'gimnasio:gestionar_rutina' alumno.id %}" class="btn btn-sm btn-info">
-                                                <i class="fas fa-dumbbell"></i> Rutinas
+                                            <a href="{% url 'gimnasio:gestionar_horario' alumno.id %}" class="btn btn-sm btn-warning">
+                                                <i class="fas fa-clock"></i> Horario
                                             </a>
-                                            <a href="{% url 'gimnasio:registrar_pago' alumno.id %}" class="btn btn-sm btn-success">
-                                                <i class="fas fa-dollar-sign"></i> Pago
-                                            </a>
-                                            <a href="{% url 'gimnasio:ver_progreso' alumno.id %}" class="btn btn-sm btn-warning">
+                                            <a href="{% url 'gimnasio:ver_progreso' alumno.id %}" class="btn btn-sm btn-info">
                                                 <i class="fas fa-chart-line"></i> Progreso
                                             </a>
                                         </div>
                                     </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="4" class="text-center">No hay alumnos registrados</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

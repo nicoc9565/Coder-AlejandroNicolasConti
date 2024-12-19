@@ -62,6 +62,13 @@ class Alumno(models.Model):
     def __str__(self):
         return f"{self.nombre} ({self.usuario.username})"
 
+    @property
+    def cuota_al_dia(self):
+        from datetime import datetime
+        mes_actual = datetime.now().date().replace(day=1)
+        ultimo_pago = self.pagos.order_by('-mes_correspondiente').first()
+        return ultimo_pago and ultimo_pago.mes_correspondiente >= mes_actual
+
     class Meta:
         verbose_name = "Alumno"
         verbose_name_plural = "Alumnos"
@@ -167,7 +174,6 @@ class PagoCuota(models.Model):
     fecha_pago = models.DateField()
     monto = models.DecimalField(max_digits=8, decimal_places=2)
     mes_correspondiente = models.DateField()
-    comprobante = models.FileField(upload_to='comprobantes/', null=True, blank=True)
     notas = models.TextField(blank=True)
 
     def __str__(self):

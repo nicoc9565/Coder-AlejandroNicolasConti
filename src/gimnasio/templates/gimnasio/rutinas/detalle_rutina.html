@@ -1,114 +1,131 @@
 {% extends 'gimnasio/base.html' %}
 
-{% block titulo %}Detalle de Rutina{% endblock %}
+{% block titulo %}{{ rutina.nombre }}{% endblock %}
 
 {% block contenido %}
-<div class="page-content">
-    <div class="main-container">
-        <div class="d-flex justify-content-between align-items-center">
-            <h1 class="page-title">{{ rutina.nombre }}</h1>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">{{ rutina.nombre }}</h1>
+        {% if user.perfil.es_profesor %}
+            <a href="{% url 'gimnasio:panel_profesor' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Volver al Panel
+            </a>
+        {% else %}
             <a href="{% url 'gimnasio:mis_rutinas' %}" class="btn btn-secondary">
                 <i class="bi bi-arrow-left me-2"></i>Volver a Mis Rutinas
             </a>
-        </div>
+        {% endif %}
+    </div>
 
-        <div class="card shadow mb-4">
-            <div class="card-header bg-primary text-white">
-                <h4 class="card-title mb-0">Información General</h4>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Alumno:</strong> {{ rutina.alumno.nombre }}</p>
-                        <p><strong>Profesor:</strong> {{ rutina.profesor.get_full_name|default:rutina.profesor.username }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Fecha de creación:</strong> {{ rutina.fecha_creacion|date:"d/m/Y" }}</p>
-                        <p><strong>Última actualización:</strong> {{ rutina.fecha_actualizacion|date:"d/m/Y" }}</p>
-                    </div>
+    <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="card-title mb-0">Información General</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Alumno:</strong> {{ rutina.alumno.nombre }}</p>
+                    <p><strong>Profesor:</strong> {{ rutina.profesor.get_full_name|default:rutina.profesor.username }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Fecha de creación:</strong> {{ rutina.fecha_creacion|date:"d/m/Y" }}</p>
+                    <p><strong>Última actualización:</strong> {{ rutina.fecha_actualizacion|date:"d/m/Y" }}</p>
                 </div>
             </div>
+            {% if rutina.descripcion %}
+                <hr>
+                <p><strong>Descripción:</strong></p>
+                <p class="mb-0">{{ rutina.descripcion }}</p>
+            {% endif %}
         </div>
+    </div>
 
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4 class="card-title mb-0">Ejercicios</h4>
-            </div>
-            <div class="card-body">
-                {% if ejercicios %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Ejercicio</th>
-                                    <th>Series</th>
-                                    <th>Repeticiones</th>
-                                    <th>Peso</th>
-                                    <th>Notas</th>
-                                    {% if not user.perfil.es_profesor %}
-                                        <th>Acciones</th>
-                                    {% endif %}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for ejercicio in ejercicios %}
-                                <tr>
-                                    <td>
-                                        <strong>{{ ejercicio.ejercicio.nombre }}</strong>
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="card-title mb-0">Ejercicios</h4>
+        </div>
+        <div class="card-body">
+            {% if ejercicios %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Ejercicio</th>
+                                <th>Series</th>
+                                <th>Repeticiones</th>
+                                <th>Peso</th>
+                                <th>Descanso</th>
+                                <th>Notas</th>
+                                {% if not user.perfil.es_profesor %}
+                                    <th>Acciones</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ejercicio in ejercicios %}
+                            <tr>
+                                <td>
+                                    <strong>{{ ejercicio.ejercicio.nombre }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ ejercicio.ejercicio.grupo_muscular }}</small>
+                                    {% if ejercicio.ejercicio.imagen %}
                                         <br>
-                                        <small class="text-muted">{{ ejercicio.ejercicio.grupo_muscular }}</small>
-                                    </td>
-                                    <td>{{ ejercicio.series }}</td>
-                                    <td>{{ ejercicio.repeticiones }}</td>
-                                    <td>{{ ejercicio.peso }} kg</td>
-                                    <td>{{ ejercicio.notas|default:"-" }}</td>
-                                    {% if not user.perfil.es_profesor %}
-                                        <td>
-                                            <button type="button" 
-                                                    class="btn btn-primary btn-sm"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#completarEjercicioModal{{ ejercicio.id }}">
-                                                <i class="bi bi-check2-circle me-1"></i>
-                                                Completar
-                                            </button>
-                                        </td>
+                                        <img src="{{ ejercicio.ejercicio.imagen.url }}" 
+                                             alt="{{ ejercicio.ejercicio.nombre }}" 
+                                             class="img-thumbnail mt-2" 
+                                             style="max-width: 100px;">
                                     {% endif %}
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <p class="text-center text-muted mb-0">No hay ejercicios asignados a esta rutina.</p>
-                {% endif %}
-            </div>
+                                </td>
+                                <td>{{ ejercicio.series }}</td>
+                                <td>{{ ejercicio.repeticiones }}</td>
+                                <td>{{ ejercicio.peso }} kg</td>
+                                <td>{{ ejercicio.descanso }}</td>
+                                <td>{{ ejercicio.notas|default:"-" }}</td>
+                                {% if not user.perfil.es_profesor %}
+                                    <td>
+                                        <button type="button" 
+                                                class="btn btn-primary btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#completarEjercicioModal{{ ejercicio.id }}">
+                                            <i class="bi bi-check2-circle me-1"></i>
+                                            Completar
+                                        </button>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-center text-muted mb-0">No hay ejercicios asignados a esta rutina.</p>
+            {% endif %}
         </div>
     </div>
 </div>
 
 {% if not user.perfil.es_profesor %}
     {% for ejercicio in ejercicios %}
-    <!-- Modal para completar ejercicio -->
     <div class="modal fade" id="completarEjercicioModal{{ ejercicio.id }}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Completar Ejercicio</h5>
+                    <h5 class="modal-title">Completar {{ ejercicio.ejercicio.nombre }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form method="post" action="{% url 'gimnasio:completar_ejercicio' ejercicio.id %}">
                     {% csrf_token %}
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="series_completadas" class="form-label">Series Completadas</label>
+                            <label for="series_completadas" class="form-label">Series completadas</label>
                             <input type="number" class="form-control" id="series_completadas" name="series_completadas" 
                                    min="1" max="{{ ejercicio.series }}" required>
                             <div class="form-text">De {{ ejercicio.series }} series programadas</div>
                         </div>
                         <div class="mb-3">
-                            <label for="peso_usado" class="form-label">Peso Usado (kg)</label>
-                            <input type="number" step="0.5" class="form-control" id="peso_usado" name="peso_usado" 
-                                   value="{{ ejercicio.peso }}" required>
+                            <label for="peso_usado" class="form-label">Peso utilizado (kg)</label>
+                            <input type="number" class="form-control" id="peso_usado" name="peso_usado" 
+                                   step="0.5" value="{{ ejercicio.peso }}" required>
                         </div>
                         <div class="mb-3">
                             <label for="notas" class="form-label">Notas (opcional)</label>
@@ -117,7 +134,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar Progreso</button>
+                        <button type="submit" class="btn btn-primary">Registrar</button>
                     </div>
                 </form>
             </div>

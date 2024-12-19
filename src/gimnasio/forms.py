@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Rutina, RutinaEjercicio, EjercicioCompletado, Alumno, Ejercicio
+from .models import Rutina, RutinaEjercicio, EjercicioCompletado, Alumno, Ejercicio, PagoCuota
+from django.utils import timezone
 
 class RegistroForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -82,12 +83,11 @@ class RutinaEjercicioForm(forms.ModelForm):
     def save(self, commit=True):
         instance = super().save(commit=False)
         
-        # Crear o obtener el ejercicio
         ejercicio, created = Ejercicio.objects.get_or_create(
             nombre=self.cleaned_data['nombre_ejercicio'],
             defaults={
                 'grupo_muscular': self.cleaned_data['grupo_muscular'],
-                'descripcion': ''  # Descripción vacía por defecto
+                'descripcion': ''  
             }
         )
         
@@ -124,3 +124,48 @@ class AlumnoForm(forms.ModelForm):
             'peso': 'Peso en kilogramos',
             'dias_asistencia': 'Selecciona los días que asistirás al gimnasio',
         }
+
+class PagoCuotaForm(forms.ModelForm):
+    fecha_pago = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date',
+            'value': timezone.now().strftime('%Y-%m-%d')
+        }),
+        input_formats=['%Y-%m-%d']
+    )
+    mes_correspondiente = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date',  
+            'value': timezone.now().strftime('%Y-%m-%d')
+        }),
+        input_formats=['%Y-%m-%d']
+    )
+
+    class Meta:
+        model = PagoCuota
+        fields = ['alumno', 'fecha_pago', 'monto', 'mes_correspondiente', 'notas']
+        widgets = {
+            'alumno': forms.Select(attrs={'class': 'form-select'}),
+            'monto': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '0',
+                'step': '0.01'
+            }),
+            'notas': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Notas adicionales sobre el pago...'
+            })
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['alumno'].queryset = Alumno.objects.filter(activo=True).order_by('nombre')
+        self.fields['alumno'].required = True
+        self.fields['fecha_pago'].required = True
+        self.fields['monto'].required = True
+        self.fields['mes_correspondiente'].required = True
+        for field in self.fields:
+            self.fields[field].widget.attrs['class'] = self.fields[field].widget.attrs.get('class', '') + ' needs-validation'

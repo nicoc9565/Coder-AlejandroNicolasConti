@@ -1,0 +1,48 @@
+{% extends 'gimnasio/base.html' %}
+{% load static %}
+
+{% block titulo %}{{ title }}{% endblock %}
+
+{% block contenido %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h4 mb-0">{{ title }}</h2>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Alumno:</dt>
+                        <dd class="col-sm-8">{{ pago.alumno.nombre }}</dd>
+
+                        <dt class="col-sm-4">Fecha de Pago:</dt>
+                        <dd class="col-sm-8">{{ pago.fecha_pago|date:"d/m/Y" }}</dd>
+
+                        <dt class="col-sm-4">Monto:</dt>
+                        <dd class="col-sm-8">${{ pago.monto }}</dd>
+
+                        <dt class="col-sm-4">Mes Correspondiente:</dt>
+                        <dd class="col-sm-8">{{ pago.mes_correspondiente|date:"F Y" }}</dd>
+
+                        {% if pago.notas %}
+                        <dt class="col-sm-4">Notas:</dt>
+                        <dd class="col-sm-8">{{ pago.notas|linebreaks }}</dd>
+                        {% endif %}
+                    </dl>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'gimnasio:lista_pagos' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Volver a la Lista de Pagos
+                        </a>
+                        <a href="{% url 'gimnasio:registrar_pago_alumno' pago.alumno.id %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>Registrar Otro Pago
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

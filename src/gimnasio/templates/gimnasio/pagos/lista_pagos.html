@@ -1,0 +1,87 @@
+{% extends 'gimnasio/base.html' %}
+{% load static %}
+
+{% block titulo %}Lista de Pagos{% endblock %}
+
+{% block contenido %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="mb-0">Lista de Pagos</h2>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'gimnasio:registrar_pago' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Registrar Nuevo Pago
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="alumno" class="form-label">Alumno</label>
+                    <select name="alumno" id="alumno" class="form-select">
+                        <option value="">Todos los alumnos</option>
+                        {% for alumno in alumnos %}
+                        <option value="{{ alumno.id }}" {% if request.GET.alumno == alumno.id|stringformat:"s" %}selected{% endif %}>
+                            {{ alumno.nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="mes" class="form-label">Mes</label>
+                    <input type="month" name="mes" id="mes" class="form-control" value="{{ request.GET.mes }}">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="bi bi-search me-2"></i>Filtrar
+                    </button>
+                    <a href="{% url 'gimnasio:lista_pagos' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle me-2"></i>Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Alumno</th>
+                        <th>Fecha de Pago</th>
+                        <th>Mes Correspondiente</th>
+                        <th>Monto</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pago in pagos %}
+                    <tr>
+                        <td>{{ pago.alumno.nombre }}</td>
+                        <td>{{ pago.fecha_pago }}</td>
+                        <td>{{ pago.mes_correspondiente|date:"F Y" }}</td>
+                        <td>${{ pago.monto }}</td>
+                        <td>
+                            <a href="{% url 'gimnasio:detalle_pago' pago.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye me-1"></i>Ver Detalles
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <i class="bi bi-inbox h4 d-block mb-2"></i>
+                            No se encontraron pagos registrados
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

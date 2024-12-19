@@ -3,10 +3,9 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
-from django.utils import timezone
 from django.db.models import Count, Avg
 from .models import *
-from .forms import RegistroForm, RutinaForm, RutinaEjercicioForm, EjercicioCompletadoForm, AlumnoForm
+from .forms import RegistroForm, RutinaForm, RutinaEjercicioForm, EjercicioCompletadoForm, AlumnoForm, PagoCuotaForm
 from datetime import datetime, timedelta
 from django.http import JsonResponse
 from .models import RutinaEjercicio
@@ -22,7 +21,6 @@ def es_profesor(user):
 def index(request):
     return render(request, 'gimnasio/index.html')
 
-# Vistas para Alumnos
 @login_required
 def perfil_alumno(request):
     try:
@@ -30,17 +28,15 @@ def perfil_alumno(request):
         rutinas = Rutina.objects.filter(alumno=alumno, activa=True)
         ejercicios_completados = EjercicioCompletado.objects.filter(
             alumno=alumno,
-            fecha__gte=timezone.now() - timedelta(days=30)
+            fecha__gte=datetime.now() - timedelta(days=30)
         ).count()
         
-        # Obtener el último pago de cuota
         ultimo_pago = PagoCuota.objects.filter(alumno=alumno).order_by('-mes_correspondiente').first()
         cuota_al_dia = False
         if ultimo_pago:
-            mes_actual = timezone.now().date().replace(day=1)
+            mes_actual = datetime.now().date().replace(day=1)
             cuota_al_dia = ultimo_pago.mes_correspondiente >= mes_actual
         
-        # Obtener progreso
         registros_progreso = RegistroProgreso.objects.filter(
             alumno=alumno
         ).order_by('-fecha')[:10]
@@ -61,7 +57,6 @@ def perfil_alumno(request):
 @login_required
 def crear_perfil_alumno(request):
     try:
-        # Verificar si ya existe un perfil de alumno
         alumno = Alumno.objects.get(usuario=request.user)
         messages.info(request, 'Ya tienes un perfil de alumno.')
         return redirect('gimnasio:perfil_alumno')
@@ -72,7 +67,6 @@ def crear_perfil_alumno(request):
                 alumno = form.save(commit=False)
                 alumno.usuario = request.user
                 alumno.save()
-                # Guardar los días de asistencia después de crear el alumno
                 form.save_m2m()
                 messages.success(request, '¡Perfil creado exitosamente!')
                 return redirect('gimnasio:perfil_alumno')
@@ -110,34 +104,40 @@ def registrar_progreso(request):
             messages.error(request, f'Error al registrar progreso: {str(e)}')
     return redirect('gimnasio:perfil_alumno')
 
-# Vistas para Profesores
 @login_required
 @user_passes_test(es_profesor)
 def panel_profesor(request):
-    # Estadísticas generales
-    total_alumnos = Alumno.objects.filter(rutinas__profesor=request.user).distinct().count()
-    rutinas_activas = Rutina.objects.filter(profesor=request.user, activa=True).count()
-    ejercicios_hoy = EjercicioCompletado.objects.filter(
-        rutina_ejercicio__rutina__profesor=request.user,
-        fecha__date=timezone.now().date()
-    ).count()
+    from django.utils import timezone
     
-    # Obtener alumnos con su información
-    alumnos = Alumno.objects.filter(rutinas__profesor=request.user).distinct()
-    
-    # Ordenar alumnos según el parámetro
+    profesor = request.user
+
     orden = request.GET.get('orden', 'nombre')
+    
+    alumnos = Alumno.objects.filter(profesor=profesor, activo=True)
+    
     if orden == 'nombre':
         alumnos = alumnos.order_by('nombre')
     elif orden == 'fecha':
-        alumnos = alumnos.order_by('-usuario__date_joined')
+        alumnos = alumnos.order_by('-fecha_registro')
+    elif orden == 'cuota':
+        mes_actual = timezone.now().date().replace(day=1)
+        alumnos = list(alumnos)
+        alumnos.sort(key=lambda a: (a.cuota_al_dia, a.nombre))
     
+    total_alumnos = len(alumnos) if isinstance(alumnos, list) else alumnos.count()
+    rutinas_activas = Rutina.objects.filter(profesor=profesor, activa=True).count()
+    ejercicios_hoy = EjercicioCompletado.objects.filter(
+        alumno__profesor=profesor,
+        fecha__date=timezone.now().date()
+    ).count()
+
     context = {
+        'alumnos': alumnos,
         'total_alumnos': total_alumnos,
         'rutinas_activas': rutinas_activas,
         'ejercicios_hoy': ejercicios_hoy,
-        'alumnos': alumnos,
     }
+    
     return render(request, 'gimnasio/panel_profesor.html', context)
 
 @login_required
@@ -162,7 +162,6 @@ def crear_rutina(request):
         form = RutinaForm(request.POST)
         ejercicio_forms = []
         
-        # Procesar los datos de ejercicios
         ejercicios_data = []
         for key in request.POST:
             if key.startswith('nombre_ejercicio-'):
@@ -181,9 +180,7 @@ def crear_rutina(request):
             rutina.profesor = request.user
             rutina.save()
             
-            # Guardar los ejercicios
             for i, ejercicio_data in enumerate(ejercicios_data, start=1):
-                # Crear o obtener el ejercicio
                 ejercicio, _ = Ejercicio.objects.get_or_create(
                     nombre=ejercicio_data['nombre_ejercicio'],
                     grupo_muscular=ejercicio_data['grupo_muscular'],
@@ -193,7 +190,6 @@ def crear_rutina(request):
                     }
                 )
                 
-                # Crear la relación RutinaEjercicio
                 RutinaEjercicio.objects.create(
                     rutina=rutina,
                     ejercicio=ejercicio,
@@ -224,7 +220,6 @@ def crear_rutina_alumno(request, alumno_id):
         form = RutinaForm(request.POST)
         ejercicio_forms = []
         
-        # Procesar los datos de ejercicios
         ejercicios_data = []
         for key in request.POST:
             if key.startswith('nombre_ejercicio-'):
@@ -244,9 +239,7 @@ def crear_rutina_alumno(request, alumno_id):
             rutina.alumno = alumno
             rutina.save()
             
-            # Guardar los ejercicios
             for i, ejercicio_data in enumerate(ejercicios_data, start=1):
-                # Crear o obtener el ejercicio
                 ejercicio, _ = Ejercicio.objects.get_or_create(
                     nombre=ejercicio_data['nombre_ejercicio'],
                     grupo_muscular=ejercicio_data['grupo_muscular'],
@@ -256,7 +249,6 @@ def crear_rutina_alumno(request, alumno_id):
                     }
                 )
                 
-                # Crear la relación RutinaEjercicio
                 RutinaEjercicio.objects.create(
                     rutina=rutina,
                     ejercicio=ejercicio,
@@ -327,13 +319,11 @@ def gestionar_horario(request, alumno_id):
         dias = request.POST.getlist('dias')
         horario = request.POST.get('horario')
         
-        # Actualizar días de asistencia
         alumno.dias_asistencia.clear()
         for dia_id in dias:
             dia = DiaAsistencia.objects.get(id=dia_id)
             alumno.dias_asistencia.add(dia)
         
-        # Actualizar horario
         alumno.horario = horario
         alumno.save()
         
@@ -348,25 +338,112 @@ def gestionar_horario(request, alumno_id):
     return render(request, 'gimnasio/gestionar_horario.html', context)
 
 @login_required
-@user_passes_test(es_profesor)
-def registrar_pago(request, alumno_id):
-    alumno = get_object_or_404(Alumno, id=alumno_id)
-    if request.method == 'POST':
+def registrar_pago(request, alumno_id=None):
+    if not request.user.perfil.es_profesor:
+        messages.error(request, "No tienes permisos para registrar pagos.")
+        return redirect('gimnasio:index')
+    
+    alumno = None
+    if alumno_id:
         try:
-            PagoCuota.objects.create(
-                alumno=alumno,
-                fecha_pago=timezone.now().date(),
-                monto=request.POST.get('monto'),
-                mes_correspondiente=request.POST.get('mes_correspondiente'),
-                comprobante=request.FILES.get('comprobante'),
-                notas=request.POST.get('notas', '')
+            alumno = Alumno.objects.get(id=alumno_id)
+        except Alumno.DoesNotExist:
+            messages.error(request, "El alumno especificado no existe.")
+            return redirect('gimnasio:lista_pagos')
+    
+    if request.method == 'POST':
+        form = PagoCuotaForm(request.POST)
+        print("Form data:", request.POST)  
+        if form.is_valid():
+            try:
+                if alumno_id:
+                    form.instance.alumno = alumno
+                
+                pago = form.save()
+                messages.success(request, f"Pago registrado exitosamente para {pago.alumno.nombre}")
+                
+                if alumno_id:
+                    return redirect('gimnasio:ver_alumnos')
+                return redirect('gimnasio:lista_pagos')
+            except Exception as e:
+                messages.error(request, f"Error al registrar el pago: {str(e)}")
+        else:
+            print("Form errors:", form.errors)  
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"Error en {field}: {error}")
+    else:
+        initial_data = {}
+        if alumno:
+            initial_data['alumno'] = alumno.id
+        form = PagoCuotaForm(initial=initial_data)
+        
+        if alumno:
+            form.fields['alumno'].widget.attrs['readonly'] = True
+            form.fields['alumno'].widget.attrs['disabled'] = True
+            form.fields['alumno'].required = False
+    
+    context = {
+        'form': form,
+        'alumno': alumno,
+        'alumno_id': alumno_id,
+        'title': f"Registrar Pago para {alumno.nombre}" if alumno else "Registrar Nuevo Pago"
+    }
+    
+    return render(request, 'gimnasio/pagos/registrar_pago.html', context)
+
+@login_required
+def lista_pagos(request):
+    if not request.user.perfil.es_profesor:
+        messages.error(request, "No tienes permisos para ver los pagos.")
+        return redirect('gimnasio:index')
+    
+    pagos = PagoCuota.objects.all().order_by('-fecha_pago')
+    
+    alumno_id = request.GET.get('alumno')
+    if alumno_id:
+        pagos = pagos.filter(alumno_id=alumno_id)
+    
+    mes = request.GET.get('mes')
+    if mes:
+        try:
+            mes_date = datetime.strptime(mes, '%Y-%m').date()
+            pagos = pagos.filter(
+                mes_correspondiente__year=mes_date.year,
+                mes_correspondiente__month=mes_date.month
             )
-            alumno.cuota_pagada = True
-            alumno.save()
-            messages.success(request, 'Pago registrado exitosamente')
-        except Exception as e:
-            messages.error(request, f'Error al registrar pago: {str(e)}')
-    return redirect('gimnasio:panel_profesor')
+        except ValueError:
+            messages.warning(request, "Formato de mes inválido.")
+    
+    alumnos = Alumno.objects.filter(activo=True).order_by('nombre')
+    
+    context = {
+        'pagos': pagos,
+        'alumnos': alumnos,
+        'current_alumno': alumno_id,
+        'current_mes': mes,
+    }
+    
+    return render(request, 'gimnasio/pagos/lista_pagos.html', context)
+
+@login_required
+def detalle_pago(request, pago_id):
+    if not request.user.perfil.es_profesor:
+        messages.error(request, "No tienes permisos para ver los detalles del pago.")
+        return redirect('gimnasio:index')
+    
+    try:
+        pago = PagoCuota.objects.get(id=pago_id)
+    except PagoCuota.DoesNotExist:
+        messages.error(request, "El pago especificado no existe.")
+        return redirect('gimnasio:lista_pagos')
+    
+    context = {
+        'pago': pago,
+        'title': f"Detalle del Pago - {pago.alumno.nombre}"
+    }
+    
+    return render(request, 'gimnasio/pagos/detalle_pago.html', context)
 
 @login_required
 def ver_rutina(request, rutina_id):
@@ -375,22 +452,11 @@ def ver_rutina(request, rutina_id):
         messages.error(request, 'No tienes permiso para ver esta rutina')
         return redirect('gimnasio:perfil_alumno')
     
-    detalles = rutina.ejercicios.through.objects.filter(rutina=rutina).order_by('orden')
-    ejercicios_completados = {
-        ej.rutina_ejercicio_id: ej 
-        for ej in EjercicioCompletado.objects.filter(
-            rutina_ejercicio__rutina=rutina,
-            fecha__gte=timezone.now().date()
-        )
-    }
-    
-    context = {
+    ejercicios = RutinaEjercicio.objects.filter(rutina=rutina).order_by('orden')
+    return render(request, 'gimnasio/rutinas/detalle_rutina.html', {
         'rutina': rutina,
-        'detalles': detalles,
-        'ejercicios_completados': ejercicios_completados,
-        'es_profesor': es_profesor(request.user)
-    }
-    return render(request, 'gimnasio/ver_rutina.html', context)
+        'ejercicios': ejercicios
+    })
 
 @login_required
 @user_passes_test(es_profesor)
@@ -425,7 +491,7 @@ def ver_mis_rutinas(request):
         
         try:
             alumno = Alumno.objects.get(usuario=request.user)
-            rutinas = Rutina.objects.filter(alumno=alumno, activa=True)
+            rutinas = Rutina.objects.filter(alumno=alumno)
             return render(request, 'gimnasio/mis_rutinas.html', {
                 'rutinas': rutinas,
                 'alumno': alumno
@@ -435,7 +501,6 @@ def ver_mis_rutinas(request):
             return redirect('gimnasio:crear_perfil_alumno')
             
     except Perfil.DoesNotExist:
-        # Si el usuario no tiene perfil, crearlo
         Perfil.objects.create(usuario=request.user, es_profesor=False)
         return redirect('gimnasio:crear_perfil_alumno')
 
@@ -443,12 +508,10 @@ def ver_mis_rutinas(request):
 def detalle_rutina(request, rutina_id):
     rutina = get_object_or_404(Rutina, id=rutina_id)
     
-    # Verificar que el usuario tenga acceso a esta rutina
     if not (es_profesor(request.user) or request.user.alumno == rutina.alumno):
         messages.error(request, 'No tienes permiso para ver esta rutina.')
         return redirect('gimnasio:index')
     
-    # Obtener los ejercicios de la rutina
     ejercicios = RutinaEjercicio.objects.filter(rutina=rutina).order_by('orden')
     
     return render(request, 'gimnasio/rutinas/detalle_rutina.html', {
@@ -591,7 +654,6 @@ def asignar_rutina(request, alumno_id):
             alumno=alumno,
             profesor=request.user
         )
-        # Procesar ejercicios seleccionados
         ejercicios = request.POST.getlist('ejercicios')
         for ej_id in ejercicios:
             ejercicio = Ejercicio.objects.get(id=ej_id)
@@ -619,7 +681,6 @@ def gestionar_ejercicios(request):
     ejercicios = Ejercicio.objects.filter(creado_por=request.user)
     
     if request.method == 'POST':
-        # Crear nuevo ejercicio
         nombre = request.POST.get('nombre')
         descripcion = request.POST.get('descripcion')
         grupo_muscular = request.POST.get('grupo_muscular')
@@ -640,7 +701,6 @@ def gestionar_ejercicios(request):
         else:
             messages.error(request, 'Por favor complete todos los campos requeridos.')
     
-    # Agrupar ejercicios por grupo muscular
     ejercicios_por_grupo = {}
     for ejercicio in ejercicios:
         if ejercicio.grupo_muscular not in ejercicios_por_grupo:
