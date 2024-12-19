@@ -1,40 +1,165 @@
 {% extends 'gimnasio/base.html' %}
 
-{% block titulo %}Crear Rutina{% endblock %}
+{% block titulo %}{{ titulo }}{% endblock %}
 
 {% block contenido %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Crear Nueva Rutina para {{ alumno.nombre }}</h4>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        {% for field in form %}
-                            <div class="mb-3">
-                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                                {{ field.errors }}
-                                {{ field|add_class:"form-control" }}
-                                {% if field.help_text %}
-                                    <div class="form-text">{{ field.help_text }}</div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-plus-lg"></i> Crear Rutina
-                            </button>
-                            <a href="{% url 'gimnasio:ver_alumnos' %}" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Volver a Mis Alumnos
-                            </a>
+
+<div class="main-content">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="form-container">
+                    <div class="card border-0">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0">{{ titulo }}</h4>
                         </div>
-                    </form>
+                        <div class="card-body">
+                            <form method="post" id="rutina-form">
+                                {% csrf_token %}
+                                <div class="row mb-4">
+                                    <div class="col-md-12">
+                                        <h5>Información de la Rutina</h5>
+                                        {% for field in form %}
+                                            <div class="mb-3">
+                                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                                {% if field.errors %}
+                                                    <div class="alert alert-danger">
+                                                        {{ field.errors }}
+                                                    </div>
+                                                {% endif %}
+                                                {{ field }}
+                                                {% if field.help_text %}
+                                                    <div class="form-text">{{ field.help_text }}</div>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-md-12">
+                                        <h5>Ejercicios</h5>
+                                        <div id="ejercicios-container">
+                                            <div class="ejercicio-form">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="mb-2">
+                                                            <label class="form-label">Grupo Muscular</label>
+                                                            <select name="grupo_muscular-0" class="form-control">
+                                                                <option value="Pecho">Pecho</option>
+                                                                <option value="Espalda">Espalda</option>
+                                                                <option value="Piernas">Piernas</option>
+                                                                <option value="Hombros">Hombros</option>
+                                                                <option value="Brazos">Brazos</option>
+                                                                <option value="Abdominales">Abdominales</option>
+                                                                <option value="Cardio">Cardio</option>
+                                                                <option value="General">General</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <label class="form-label">Nombre del Ejercicio</label>
+                                                            <input type="text" name="nombre_ejercicio-0" class="form-control" placeholder="Ej: Press de Banca, Sentadillas, etc." required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="row">
+                                                            <div class="col-6 mb-2">
+                                                                <label class="form-label">Series</label>
+                                                                <input type="number" name="series-0" class="form-control" min="1" required>
+                                                            </div>
+                                                            <div class="col-6 mb-2">
+                                                                <label class="form-label">Repeticiones</label>
+                                                                <input type="text" name="repeticiones-0" class="form-control" placeholder="Ej: 12 o 8-12" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-12 mb-2">
+                                                                <label class="form-label">Peso</label>
+                                                                <input type="text" name="peso-0" class="form-control" placeholder="Ej: 10 kg o 8-12 kg">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-secondary mt-3" onclick="agregarEjercicio()">
+                                            <i class="bi bi-plus-lg"></i> Agregar Ejercicio
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save"></i> Guardar Rutina
+                                    </button>
+                                    <a href="{% url 'gimnasio:panel_profesor' %}" class="btn btn-secondary">
+                                        <i class="bi bi-arrow-left"></i> Volver al Panel
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+let ejercicioCount = 1;
+
+function agregarEjercicio() {
+    const container = document.getElementById('ejercicios-container');
+    const ejercicioDiv = document.createElement('div');
+    ejercicioDiv.className = 'ejercicio-form';
+    ejercicioDiv.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-2">
+                    <label class="form-label">Grupo Muscular</label>
+                    <select name="grupo_muscular-${ejercicioCount}" class="form-control">
+                        <option value="Pecho">Pecho</option>
+                        <option value="Espalda">Espalda</option>
+                        <option value="Piernas">Piernas</option>
+                        <option value="Hombros">Hombros</option>
+                        <option value="Brazos">Brazos</option>
+                        <option value="Abdominales">Abdominales</option>
+                        <option value="Cardio">Cardio</option>
+                        <option value="General">General</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Nombre del Ejercicio</label>
+                    <input type="text" name="nombre_ejercicio-${ejercicioCount}" class="form-control" placeholder="Ej: Press de Banca, Sentadillas, etc." required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-6 mb-2">
+                        <label class="form-label">Series</label>
+                        <input type="number" name="series-${ejercicioCount}" class="form-control" min="1" required>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <label class="form-label">Repeticiones</label>
+                        <input type="text" name="repeticiones-${ejercicioCount}" class="form-control" placeholder="Ej: 12 o 8-12" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 mb-2">
+                        <label class="form-label">Peso</label>
+                        <input type="text" name="peso-${ejercicioCount}" class="form-control" placeholder="Ej: 10 kg o 8-12 kg">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mt-2">
+                <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.parentElement.parentElement.remove()">
+                    <i class="bi bi-trash"></i> Eliminar Ejercicio
+                </button>
+            </div>
+        </div>
+    `;
+    container.appendChild(ejercicioDiv);
+    ejercicioCount++;
+}
+</script>
 {% endblock %}

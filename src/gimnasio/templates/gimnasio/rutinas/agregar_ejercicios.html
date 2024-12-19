@@ -11,7 +11,6 @@
         </div>
         <p class="text-muted mb-4">Alumno: {{ rutina.alumno.nombre }}</p>
 
-        <!-- Lista de ejercicios actuales -->
         <div class="card shadow mb-4">
             <div class="card-header bg-primary text-white">
                 <h4 class="card-title mb-0">Ejercicios en la Rutina</h4>
@@ -56,7 +55,6 @@
             </div>
         </div>
 
-        <!-- Formulario para agregar nuevo ejercicio -->
         <div class="card shadow">
             <div class="card-header bg-primary text-white">
                 <h4 class="card-title mb-0">Agregar Nuevo Ejercicio</h4>
@@ -65,19 +63,16 @@
                 <form method="post" class="row g-3">
                     {% csrf_token %}
                     
-                    <!-- Grupo Muscular -->
                     <div class="col-md-6">
                         <label for="id_grupo_muscular" class="form-label">Grupo Muscular</label>
                         {{ form.grupo_muscular }}
                     </div>
 
-                    <!-- Nombre del Ejercicio -->
                     <div class="col-md-6">
                         <label for="id_nombre_ejercicio" class="form-label">Nombre del Ejercicio</label>
                         {{ form.nombre_ejercicio }}
                     </div>
 
-                    <!-- Series y Repeticiones -->
                     <div class="col-md-3">
                         <label for="id_series" class="form-label">Series</label>
                         {{ form.series }}
@@ -89,7 +84,6 @@
                         <div class="form-text">{{ form.repeticiones.help_text }}</div>
                     </div>
 
-                    <!-- Peso y Descanso -->
                     <div class="col-md-3">
                         <label for="id_peso" class="form-label">Peso</label>
                         {{ form.peso }}
@@ -101,14 +95,12 @@
                         <div class="form-text">{{ form.descanso.help_text }}</div>
                     </div>
 
-                    <!-- Orden -->
                     <div class="col-md-6">
                         <label for="id_orden" class="form-label">Orden</label>
                         {{ form.orden }}
                         <div class="form-text">{{ form.orden.help_text }}</div>
                     </div>
 
-                    <!-- Notas -->
                     <div class="col-12">
                         <label for="id_notas" class="form-label">Notas</label>
                         {{ form.notas }}

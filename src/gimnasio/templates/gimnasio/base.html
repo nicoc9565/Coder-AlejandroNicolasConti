@@ -131,15 +131,29 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var toastElements = document.querySelectorAll('.toast');
-            toastElements.forEach(function(toast) {
-                new bootstrap.Toast(toast, {
+            // Inicializar los toasts
+            var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+            var toastList = toastElList.map(function(toastEl) {
+                return new bootstrap.Toast(toastEl, {
                     autohide: true,
-                    delay: 5000
-                }).show();
+                    delay: 3000
+                });
             });
+            toastList.forEach(toast => toast.show());
+
+            // Efecto de scroll en el navbar para la página de inicio
+            if (document.querySelector('.navbar-transparent')) {
+                window.addEventListener('scroll', function() {
+                    var navbar = document.querySelector('.navbar-transparent');
+                    if (window.scrollY > 50) {
+                        navbar.classList.add('scrolled');
+                    } else {
+                        navbar.classList.remove('scrolled');
+                    }
+                });
+            }
         });
     </script>
-    {% block javascript %}{% endblock %}
+    {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -75,34 +75,50 @@
                                     <th>Nombre</th>
                                     <th>Días de Asistencia</th>
                                     <th>Estado Cuota</th>
+                                    <th>Rutinas Activas</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for alumno in alumnos %}
+                                {% for alumno_data in alumnos %}
                                 <tr>
-                                    <td>{{ alumno.nombre }}</td>
+                                    <td>{{ alumno_data.alumno.nombre }}</td>
                                     <td>
-                                        {% for dia in alumno.dias_asistencia.all %}
+                                        {% for dia in alumno_data.alumno.dias_asistencia.all %}
                                             <span class="badge bg-primary">{{ dia.get_dia_display }}</span>
                                         {% endfor %}
                                     </td>
                                     <td>
-                                        {% if alumno.cuota_al_dia %}
+                                        {% if alumno_data.alumno.cuota_al_dia %}
                                             <span class="badge bg-success">Al día</span>
                                         {% else %}
                                             <span class="badge bg-danger">Pendiente</span>
                                         {% endif %}
                                     </td>
                                     <td>
+                                        {% if alumno_data.rutinas %}
+                                            {% for rutina in alumno_data.rutinas %}
+                                                <a href="{% url 'gimnasio:ver_rutina' rutina.id %}" 
+                                                   class="badge bg-info text-decoration-none mb-1 d-block">
+                                                    {{ rutina.nombre }}
+                                                </a>
+                                            {% endfor %}
+                                        {% else %}
+                                            <span class="badge bg-secondary">Sin rutinas</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
                                         <div class="btn-group">
-                                            <a href="{% url 'gimnasio:crear_rutina_alumno' alumno.id %}" class="btn btn-sm btn-primary">
+                                            <a href="{% url 'gimnasio:crear_rutina_alumno' alumno_data.alumno.id %}" 
+                                               class="btn btn-sm btn-primary">
                                                 <i class="fas fa-plus"></i> Rutina
                                             </a>
-                                            <a href="{% url 'gimnasio:gestionar_horario' alumno.id %}" class="btn btn-sm btn-warning">
+                                            <a href="{% url 'gimnasio:gestionar_horario' alumno_data.alumno.id %}" 
+                                               class="btn btn-sm btn-warning">
                                                 <i class="fas fa-clock"></i> Horario
                                             </a>
-                                            <a href="{% url 'gimnasio:ver_progreso' alumno.id %}" class="btn btn-sm btn-info">
+                                            <a href="{% url 'gimnasio:ver_progreso' alumno_data.alumno.id %}" 
+                                               class="btn btn-sm btn-info">
                                                 <i class="fas fa-chart-line"></i> Progreso
                                             </a>
                                         </div>
