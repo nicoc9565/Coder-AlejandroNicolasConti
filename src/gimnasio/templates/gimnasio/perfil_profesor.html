@@ -4,123 +4,180 @@
 {% block titulo %}Mi Perfil - Profesor{% endblock %}
 
 {% block contenido %}
-<div class="page-content">
-    <div class="main-container">
-        <h1 class="page-title">Mi Perfil</h1>
-
-        {% if messages %}
-        <div class="row mb-4">
-            <div class="col-12">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                {% endfor %}
+<div class="container py-5">
+    {% if messages %}
+    <div class="row mb-4">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
+            {% endfor %}
         </div>
-        {% endif %}
+    </div>
+    {% endif %}
 
-        <div class="row">
-            <!-- Perfil y Estadísticas -->
-            <div class="col-md-4">
-                <div class="card shadow">
-                    <div class="card-body text-center">
+    <div class="row g-4">
+        <!-- Tarjeta de Perfil -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="position-relative mb-4 mx-auto" style="width: 150px;">
                         <img src="{{ perfil.get_foto_url }}" 
                              alt="Foto de perfil" 
-                             class="rounded-circle img-thumbnail mb-3"
+                             class="rounded-circle img-thumbnail"
                              style="width: 150px; height: 150px; object-fit: cover;">
-                        
-                        <h3 class="card-title">{{ user.get_full_name }}</h3>
-                        <p class="text-muted mb-1">Administrador</p>
-                        <p class="card-text text-primary mb-3">{{ perfil.especialidad }}</p>
-                        
-                        {% if perfil.biografia %}
-                        <div class="mb-4">
-                            <h6 class="text-muted mb-2">Biografía</h6>
-                            <p class="card-text">{{ perfil.biografia }}</p>
-                        </div>
-                        {% endif %}
-                        
-                        <!-- Estadísticas -->
-                        <div class="row text-center mt-4">
-                            <div class="col">
-                                <h4>{{ total_alumnos }}</h4>
-                                <small class="text-muted">Alumnos</small>
+                        <label for="foto" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2 cursor-pointer" style="cursor: pointer;">
+                            <i class="bi bi-camera-fill"></i>
+                        </label>
+                    </div>
+                    
+                    <h3 class="card-title mb-1">{{ user.get_full_name }}</h3>
+                    <p class="text-muted mb-2">
+                        <i class="bi bi-shield-check text-primary"></i> Profesor
+                    </p>
+                    <p class="text-primary mb-3">
+                        <i class="bi bi-award"></i> {{ perfil.especialidad }}
+                    </p>
+                    
+                    {% if perfil.biografia %}
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2">Sobre mí</h6>
+                        <p class="card-text">{{ perfil.biografia }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Estadísticas -->
+                    <div class="row g-3 text-center mt-3">
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded">
+                                <h4 class="mb-1 text-primary">{{ total_alumnos }}</h4>
+                                <small class="text-muted d-block">Alumnos</small>
                             </div>
-                            <div class="col">
-                                <h4>{{ rutinas_activas }}</h4>
-                                <small class="text-muted">Rutinas Activas</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded">
+                                <h4 class="mb-1 text-success">{{ rutinas_activas }}</h4>
+                                <small class="text-muted d-block">Rutinas Activas</small>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Editar Perfil y Alumnos -->
-            <div class="col-md-8">
-                <div class="card shadow collapse d-md-block" id="editarPerfil">
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h4 class="card-title mb-0">Editar Perfil</h4>
-                    </div>
-                    <div class="card-body">
-                        <form method="post" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="first_name" class="form-label">Nombre</label>
+        <!-- Formulario de Edición -->
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary bg-gradient text-white py-3">
+                    <h4 class="card-title mb-0">
+                        <i class="bi bi-pencil-square me-2"></i>Editar Perfil
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label">Nombre</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
                                     <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" required>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="last_name" class="form-label">Apellido</label>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label">Apellido</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
                                     <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" required>
                                 </div>
                             </div>
-                            <div class="mb-3">
+                            <div class="col-12">
                                 <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                    <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                                </div>
                             </div>
-                            <div class="mb-3">
+                            <div class="col-12">
                                 <label for="especialidad" class="form-label">Especialidad</label>
-                                <input type="text" class="form-control" id="especialidad" name="especialidad" value="{{ perfil.especialidad }}">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-award"></i></span>
+                                    <input type="text" class="form-control" id="especialidad" name="especialidad" value="{{ perfil.especialidad }}" placeholder="Ej: Entrenamiento Funcional">
+                                </div>
                             </div>
-                            <div class="mb-3">
+                            <div class="col-12">
                                 <label for="biografia" class="form-label">Biografía</label>
-                                <textarea class="form-control" id="biografia" name="biografia" rows="3">{{ perfil.biografia }}</textarea>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-file-text"></i></span>
+                                    <textarea class="form-control" id="biografia" name="biografia" rows="4" placeholder="Cuéntanos sobre tu experiencia y especialidades...">{{ perfil.biografia }}</textarea>
+                                </div>
                             </div>
-                            <div class="mb-3">
+                            <div class="col-12">
                                 <label for="foto" class="form-label">Foto de Perfil</label>
-                                <input type="file" class="form-control" id="foto" name="foto">
+                                <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+                                <div class="form-text">Formatos aceptados: JPG, PNG. Tamaño máximo: 5MB</div>
                             </div>
-                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                        </form>
-                    </div>
-                </div>
+                        </div>
 
-                <div class="card shadow mt-4">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="card-title mb-0">Alumnos Recientes</h4>
-                    </div>
-                    <div class="card-body">
-                        {% if alumnos_recientes %}
-                            <div class="list-group">
-                                {% for alumno in alumnos_recientes %}
-                                    <a href="#" class="list-group-item list-group-item-action">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h5 class="mb-1">{{ alumno.nombre }}</h5>
-                                            <small class="text-muted">{{ alumno.fecha_registro|date:"d/m/Y" }}</small>
-                                        </div>
-                                        <p class="mb-1">{{ alumno.rutina_actual.nombre|default:"Sin rutina asignada" }}</p>
-                                    </a>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            <p class="text-muted mb-0">No hay alumnos registrados recientemente.</p>
-                        {% endif %}
-                    </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="button" class="btn btn-outline-secondary me-md-2" onclick="window.location.href='{% url 'gimnasio:panel_profesor' %}'">
+                                <i class="bi bi-x-circle me-1"></i>Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i>Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+    }
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .bg-gradient {
+        background: linear-gradient(45deg, var(--bs-primary) 0%, #2196f3 100%);
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validación del formulario
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+
+    // Preview de imagen
+    const inputFoto = document.getElementById('foto');
+    const imgPerfil = document.querySelector('img.rounded-circle');
+    
+    inputFoto.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imgPerfil.src = e.target.result;
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+});
+</script>
 {% endblock %}
