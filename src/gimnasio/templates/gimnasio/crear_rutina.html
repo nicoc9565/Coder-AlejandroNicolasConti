@@ -1,0 +1,135 @@
+{% extends 'gimnasio/base.html' %}
+
+{% block titulo %}Crear Rutina{% endblock %}
+
+{% block contenido %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Crear Nueva Rutina</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="rutinaForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="id_nombre" class="form-label">Nombre de la Rutina</label>
+                            {{ form.nombre }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_descripcion" class="form-label">Descripción</label>
+                            {{ form.descripcion }}
+                        </div>
+
+                        <div id="ejercicios">
+                            <h4 class="mt-4 mb-3">Ejercicios</h4>
+                            <div class="ejercicio-form mb-4 border p-3 rounded position-relative">
+                                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 eliminar-ejercicio" style="display: none;">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label">Grupo Muscular</label>
+                                        <select name="grupo_muscular-0" class="form-control grupo-muscular" required>
+                                            <option value="">Seleccione un grupo muscular</option>
+                                            <option value="pecho">Pecho</option>
+                                            <option value="espalda">Espalda</option>
+                                            <option value="piernas">Piernas</option>
+                                            <option value="hombros">Hombros</option>
+                                            <option value="brazos">Brazos</option>
+                                            <option value="abdominales">Abdominales</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label">Nombre del Ejercicio</label>
+                                        <input type="text" name="nombre_ejercicio-0" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-2">
+                                        <label class="form-label">Series</label>
+                                        <input type="number" name="series-0" class="form-control" required min="1">
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <label class="form-label">Repeticiones</label>
+                                        <input type="number" name="repeticiones-0" class="form-control" required min="1">
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <label class="form-label">Peso (kg)</label>
+                                        <input type="number" name="peso-0" class="form-control" step="0.5" min="0">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mb-3">
+                            <button type="button" class="btn btn-success" id="agregar-ejercicio">
+                                <i class="bi bi-plus-circle"></i> Agregar Ejercicio
+                            </button>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-lg"></i> Crear Rutina
+                            </button>
+                            <a href="{% url 'gimnasio:ver_alumnos' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Volver a Mis Alumnos
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('ejercicios');
+    const agregarBtn = document.getElementById('agregar-ejercicio');
+    let ejercicioCount = 1;
+
+    // Mostrar el botón de eliminar en el primer ejercicio si se agrega otro
+    function actualizarBotonesEliminar() {
+        const ejercicios = container.querySelectorAll('.ejercicio-form');
+        ejercicios.forEach(ejercicio => {
+            const btnEliminar = ejercicio.querySelector('.eliminar-ejercicio');
+            btnEliminar.style.display = ejercicios.length > 1 ? 'block' : 'none';
+        });
+    }
+
+    // Agregar nuevo ejercicio
+    agregarBtn.addEventListener('click', function() {
+        const ejercicioTemplate = container.querySelector('.ejercicio-form').cloneNode(true);
+        
+        // Actualizar los nombres de los campos
+        ejercicioTemplate.querySelectorAll('input, select').forEach(input => {
+            const nameParts = input.name.split('-');
+            input.name = nameParts[0] + '-' + ejercicioCount;
+            input.value = ''; // Limpiar valores
+        });
+
+        // Agregar el nuevo ejercicio al contenedor
+        container.appendChild(ejercicioTemplate);
+        ejercicioCount++;
+        
+        // Actualizar visibilidad de botones eliminar
+        actualizarBotonesEliminar();
+    });
+
+    // Eliminar ejercicio (delegación de eventos)
+    container.addEventListener('click', function(e) {
+        if (e.target.closest('.eliminar-ejercicio')) {
+            const ejercicio = e.target.closest('.ejercicio-form');
+            ejercicio.remove();
+            actualizarBotonesEliminar();
+        }
+    });
+});
+</script>
+{% endblock %}

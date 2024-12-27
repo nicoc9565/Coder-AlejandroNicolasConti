@@ -24,7 +24,7 @@
                                 <strong>Peso:</strong> {{ alumno.peso|default:"No especificado" }} kg
                             </p>
                             <div class="d-flex gap-2">
-                                <a href="{% url 'gimnasio:crear_rutina' alumno.id %}" class="btn btn-primary">
+                                <a href="{% url 'gimnasio:crear_rutina_alumno' alumno.id %}" class="btn btn-primary">
                                     <i class="bi bi-plus-lg"></i> Crear Rutina
                                 </a>
                                 <a href="{% url 'gimnasio:ver_progreso' alumno.id %}" class="btn btn-info">
