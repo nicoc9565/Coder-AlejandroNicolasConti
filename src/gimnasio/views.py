@@ -861,29 +861,36 @@ def perfil_profesor(request):
         # Obtener el perfil del profesor con relaciones optimizadas
         profesor = request.user.perfil
         
+        if request.method == 'POST':
+            # Actualizar datos del usuario
+            request.user.first_name = request.POST.get('first_name')
+            request.user.last_name = request.POST.get('last_name')
+            request.user.email = request.POST.get('email')
+            request.user.save()
+            
+            # Actualizar datos del perfil
+            profesor.especialidad = request.POST.get('especialidad')
+            profesor.biografia = request.POST.get('biografia')
+            
+            # Manejar la foto de perfil
+            if request.FILES.get('foto'):
+                profesor.foto = request.FILES['foto']
+            
+            profesor.save()
+            messages.success(request, 'Perfil actualizado exitosamente')
+            return redirect('gimnasio:perfil_profesor')
+        
         # Obtener estadísticas
         estadisticas = {
             'total_alumnos': Alumno.objects.filter(profesor=request.user, activo=True).count(),
             'rutinas_activas': Rutina.objects.filter(profesor=request.user, activa=True).count(),
-            'alumnos_hoy': EjercicioCompletado.objects.filter(
-                alumno__profesor=request.user,
-                fecha__date=timezone.now().date()
-            ).values('alumno').distinct().count()
         }
         
-        # Obtener últimas actividades
-        ultimas_actividades = EjercicioCompletado.objects.filter(
-            alumno__profesor=request.user
-        ).select_related(
-            'alumno',
-            'rutina_ejercicio',
-            'rutina_ejercicio__ejercicio'
-        ).order_by('-fecha')[:10]
-        
         context = {
-            'profesor': profesor,
-            'estadisticas': estadisticas,
-            'ultimas_actividades': ultimas_actividades
+            'perfil': profesor,
+            'total_alumnos': estadisticas['total_alumnos'],
+            'rutinas_activas': estadisticas['rutinas_activas'],
+            'user': request.user
         }
         
         return render(request, 'gimnasio/perfil_profesor.html', context)

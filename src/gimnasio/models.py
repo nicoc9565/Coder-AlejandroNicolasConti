@@ -26,7 +26,7 @@ class Perfil(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     es_profesor = models.BooleanField(default=False)
     fecha_registro = models.DateTimeField(auto_now_add=True)
-    foto_url = models.URLField(blank=True, null=True)
+    foto = models.ImageField(upload_to='perfiles/', blank=True, null=True)
     biografia = models.TextField(blank=True)
     especialidad = models.CharField(max_length=100, blank=True)
     
@@ -34,8 +34,8 @@ class Perfil(models.Model):
         return f"{self.usuario.get_full_name() or self.usuario.username} - {'Profesor' if self.es_profesor else 'Alumno'}"
 
     def get_foto_url(self):
-        if self.foto_url:
-            return self.foto_url
+        if self.foto:
+            return self.foto.url
         return '/static/gimnasio/images/default-profile.png'
 
     class Meta:
