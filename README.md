@@ -2,20 +2,14 @@
 
 ## Comisión
 Comisión: 60095
-
 Profesor: Esteban Acevedo
 
-
 ## Alumno
-
 Nombre: **Alejandro Nicolas Conti**
-
 Linkedin: https://linkedin.com/in/nicoc95
-
 GitHub: https://github.com/nicoc9565
 
 ## Para activar entorno virtual .\.venv\Scripts\Activate.ps1
-
 
 # MTOR-COMPLEX
 
@@ -23,103 +17,121 @@ GitHub: https://github.com/nicoc9565
 
 ---
 
-## Tecnologías Utilizadas
+**💪 Aplicación de Gestión de Gimnasio
 
-- **Frontend:** HTML5, CSS3, Bootstrap 5
-- **Backend:** Python, Django
-- **Bases de datos:** SQLite
-- **Gestión de dependencias:** Virtualenv
-- **Otras herramientas:** Bootstrap Icons, Milligram, Normalize.css
+Esta aplicación web está diseñada para gestionar un gimnasio, permitiendo la administración de alumnos, profesores, rutinas y seguimiento de progreso.
 
----
+## 🌟 Características Principales
 
-## Características Principales
+### Para Alumnos
+- 👤 Perfil personalizado con datos básicos
+- 📊 Seguimiento de progreso (peso, asistencias)
+- 💪 Visualización de rutinas asignadas
+- ✅ Registro de ejercicios completados
+- 💰 Control de pagos de cuota
 
-- **Gestión de alumnos:** Registro y visualización de datos de los alumnos inscritos.
-- **Dashboard:** Panel de control para el dueño del gimnasio con reportes detallados.
-- **Responsive Design:** Optimizado para dispositivos móviles, tabletas y computadoras.
-- **Estilo Moderno:** Uso de Bootstrap y estilos personalizados.
-- **Gestión de rutinas:** Registro y visualización de rutinas y ejercicios.
-- **Gestión de asistencias:** Registro y visualización de asistencias de los alumnos.
-- **Gestión de pagos:** Registro y visualización de pagos de los alumnos.
-## Todo esto es lo que me gustaria lograr con este proyecto
+### Para Profesores
+- 👥 Gestión de alumnos asignados
+- 📝 Creación y asignación de rutinas
+- 🎯 Seguimiento del progreso de alumnos
+- 📋 Gestión de ejercicios y rutinas
 
----
+## 🔑 Usuarios de Prueba
 
-## Configuración y Pruebas
+### Profesor
+- **Usuario:** ivan
+- **Contraseña:** admin123
+- **Características:**
+  - Puede crear y asignar rutinas
+  - Gestionar alumnos
+  - Ver progreso de alumnos
 
-Sigue estos pasos para probar el proyecto en tu entorno local:
+### Alumno
+- **Usuario:** nico
+- **Contraseña:** prueba123
+- **Características:**
+  - Acceso a rutinas personalizadas
+  - Registro de progreso
+  - Ver historial de ejercicios
 
-1. Clona este repositorio:
+## 🚀 Tecnologías Utilizadas
+
+- Django 4.2
+- Bootstrap 5
+- Chart.js para gráficos
+- SQLite como base de datos
+
+## 📱 Funcionalidades Destacadas
+
+1. **Sistema de Autenticación**
+   - Registro de usuarios
+   - Login personalizado
+   - Perfiles diferenciados (alumno/profesor)
+
+2. **Gestión de Rutinas**
+   - Creación de rutinas personalizadas
+   - Asignación a alumnos
+   - Seguimiento de progreso
+
+3. **Seguimiento de Progreso**
+   - Gráficos de evolución de peso
+   - Registro de asistencias
+   - Historial de ejercicios completados
+
+4. **Sistema de Pagos**
+   - Control de cuotas mensuales
+   - Estado de pagos
+   - Historial de transacciones
+
+## 💻 Instalación y Configuración
+
+1. **Clonar el Repositorio**
+   ```bash
    git clone https://github.com/nicoc9565/MTOR-COMPLEX.git
-
-2. Accede al directorio del proyecto:
    cd MTOR-COMPLEX
+   ```
 
-3. Crea y activa un entorno virtual:
+2. **Configurar Entorno Virtual**
+   ```bash
+   # Crear entorno virtual
    python -m venv .venv
-   source .venv/bin/activate   # En Windows usa .venv\Scripts\activate
 
-4. Instala las dependencias:
-    uv sync
+   # Activar entorno virtual (Windows PowerShell)
+   .\.venv\Scripts\Activate.ps1
+   # O para Windows CMD
+   # .\.venv\Scripts\activate.bat
+   ```
 
-5. Realiza las migraciones y ejecuta el servidor:
+3. **Instalar uv y Dependencias**
+   ```bash
+   # Instalar uv
+   python -m pip install uv
+
+   # Instalar dependencias usando uv
+   uv pip install --requirement requirements.txt
+   # O simplemente
+   uv sync
+   ```
+
+4. **Configurar la Base de Datos**
+   ```bash
    python manage.py makemigrations
    python manage.py migrate
+   ```
+
+5. **Iniciar el Servidor de Desarrollo**
+   ```bash
    python manage.py runserver
+   ```
 
-6. Abre tu navegador y accede a `http://127.0.0.1:8000/`.
+6. **Acceder a la Aplicación**
+   - Abrir el navegador y visitar: `http://127.0.0.1:8000/`
+   - Usar las credenciales proporcionadas en la sección "Usuarios de Prueba"
 
----
-
-## Usuarios de Prueba
-
-Para probar el sistema, se han creado dos usuarios con diferentes roles:
-
-### Usuario Profesor (Administrador)
-- **Username:** profesor
-- **Password:** profesor123
-- **Email:** profesor@mtor-complex.com
-- **Permisos:** Acceso completo al sistema (administración de rutinas, pagos, etc.)
-
-### Usuario Alumno
-- **Username:** alumno
-- **Password:** alumno123
-- **Email:** alumno@example.com
-- **Permisos:** Acceso a perfil personal, rutinas asignadas y estado de cuenta
-
-### El profesor tiene acceso completo al sistema y puede:
-- **Gestionar rutinas**
-- **Manejar pagos**
-- **Agregar o modificar rutinas**
-- **Acceder al panel de administración**
-
-### El alumno puede:
-- **Ver su perfil**
-- **Ver sus rutinas asignadas**
-- **Verificar su estado de cuenta**
-- **Marcar ejercicios como completados**
+### 🔍 Notas de Instalación
+- Asegúrate de tener Python 3.8 o superior instalado
+- uv es más rápido que pip para la instalación de dependencias
+- Si encuentras problemas con uv, puedes usar pip como alternativa
 
 ---
-
-## Estructura del Proyecto
-
-```
-MTOR-COMPLEX/
-├── gimnasio/               # Aplicación principal
-├── static/                 # Archivos estáticos (CSS, imágenes, JS)
-├── templates/              # Plantillas HTML
-├── .venv/                  # Entorno virtual
-├── manage.py               # Archivo principal de Django
-└── README.md               # Este archivo
-```
-
----
-
-## Contribuciones
-
-Si tienes sugerencias o mejoras para este proyecto, no dudes en hacer un fork del repositorio y enviar un pull request. También puedes abrir un *issue* con tus ideas o problemas.
-
----
-
-**© 2024 MTOR-COMPLEX** - Todos los derechos reservados.
+Desarrollado por Alejandro Nicolás Conti © 2024
