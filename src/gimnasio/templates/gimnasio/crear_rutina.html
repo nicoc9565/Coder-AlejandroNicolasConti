@@ -92,33 +92,68 @@
 document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('ejercicios');
     const agregarBtn = document.getElementById('agregar-ejercicio');
-    let ejercicioCount = 1;
+    let ejercicioCount = 0;  // Empezamos desde 0 para el primer ejercicio
+
+    function crearNuevoEjercicio(index) {
+        return `
+            <div class="ejercicio-form mb-4 border p-3 rounded position-relative">
+                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 eliminar-ejercicio">
+                    <i class="bi bi-trash"></i>
+                </button>
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Grupo Muscular</label>
+                        <select name="grupo_muscular-${index}" class="form-control grupo-muscular" required>
+                            <option value="">Seleccione un grupo muscular</option>
+                            <option value="pecho">Pecho</option>
+                            <option value="espalda">Espalda</option>
+                            <option value="piernas">Piernas</option>
+                            <option value="hombros">Hombros</option>
+                            <option value="brazos">Brazos</option>
+                            <option value="abdominales">Abdominales</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Nombre del Ejercicio</label>
+                        <input type="text" name="nombre_ejercicio-${index}" class="form-control" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label">Series</label>
+                        <input type="number" name="series-${index}" class="form-control" required min="1">
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label">Repeticiones</label>
+                        <input type="number" name="repeticiones-${index}" class="form-control" required min="1">
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label">Peso (kg)</label>
+                        <input type="number" name="peso-${index}" class="form-control" step="0.5" min="0">
+                    </div>
+                </div>
+            </div>
+        `;
+    }
 
     // Mostrar el botón de eliminar en el primer ejercicio si se agrega otro
     function actualizarBotonesEliminar() {
         const ejercicios = container.querySelectorAll('.ejercicio-form');
         ejercicios.forEach(ejercicio => {
             const btnEliminar = ejercicio.querySelector('.eliminar-ejercicio');
-            btnEliminar.style.display = ejercicios.length > 1 ? 'block' : 'none';
+            if (btnEliminar) {
+                btnEliminar.style.display = ejercicios.length > 1 ? 'block' : 'none';
+            }
         });
     }
 
     // Agregar nuevo ejercicio
     agregarBtn.addEventListener('click', function() {
-        const ejercicioTemplate = container.querySelector('.ejercicio-form').cloneNode(true);
-        
-        // Actualizar los nombres de los campos
-        ejercicioTemplate.querySelectorAll('input, select').forEach(input => {
-            const nameParts = input.name.split('-');
-            input.name = nameParts[0] + '-' + ejercicioCount;
-            input.value = ''; // Limpiar valores
-        });
-
-        // Agregar el nuevo ejercicio al contenedor
-        container.appendChild(ejercicioTemplate);
         ejercicioCount++;
-        
-        // Actualizar visibilidad de botones eliminar
+        const nuevoEjercicio = crearNuevoEjercicio(ejercicioCount);
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = nuevoEjercicio;
+        container.appendChild(tempDiv.firstElementChild);
         actualizarBotonesEliminar();
     });
 
@@ -126,10 +161,15 @@ document.addEventListener('DOMContentLoaded', function() {
     container.addEventListener('click', function(e) {
         if (e.target.closest('.eliminar-ejercicio')) {
             const ejercicio = e.target.closest('.ejercicio-form');
-            ejercicio.remove();
-            actualizarBotonesEliminar();
+            if (ejercicio) {
+                ejercicio.remove();
+                actualizarBotonesEliminar();
+            }
         }
     });
+
+    // Inicializar botones de eliminar
+    actualizarBotonesEliminar();
 });
 </script>
 {% endblock %}

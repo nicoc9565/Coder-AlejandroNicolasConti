@@ -4,11 +4,11 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.db.models import Count, Avg, Q
 from django.utils import timezone
-from django.http import JsonResponse
-from django.contrib.auth.models import User
+from datetime import datetime, timedelta
 from .models import (
-    Perfil, Alumno, Ejercicio, Rutina, RutinaEjercicio, 
-    EjercicioCompletado, PagoCuota
+    Alumno, Perfil, Rutina, EjercicioCompletado,
+    PagoCuota, RegistroProgreso, RutinaEjercicio,
+    Ejercicio, CategoriaEjercicio
 )
 from .forms import (
     RegistroForm, RutinaForm, RutinaEjercicioForm, 
@@ -99,50 +99,66 @@ def perfil(request):
 
 @login_required
 def perfil_alumno(request):
-    """Muestra el perfil detallado del alumno con sus rutinas y progreso."""
     try:
-        # Obtener alumno con sus relaciones en una sola consulta
-        alumno = Alumno.objects.select_related(
-            'usuario', 'profesor'
-        ).prefetch_related(
-            'rutinas',
-            'pagos',
-            'registros_progreso'
-        ).get(usuario=request.user)
-
-        # Obtener rutinas activas
-        rutinas = alumno.rutinas.filter(
-            activa=True
-        ).select_related('profesor').prefetch_related('ejercicios')
-
-        # Obtener ejercicios completados recientes
+        alumno = request.user.alumno
+        ultimo_pago = PagoCuota.objects.filter(alumno=alumno).order_by('-fecha_pago').first()
+        ultimo_progreso = RegistroProgreso.objects.filter(alumno=alumno).order_by('-fecha').first()
+        rutinas = Rutina.objects.filter(alumno=alumno).order_by('-fecha_creacion')
+        
+        # Obtener datos para el gráfico de progreso
+        import json
+        progresos = RegistroProgreso.objects.filter(alumno=alumno).order_by('fecha')
+        fechas_progreso = []
+        pesos_progreso = []
+        if progresos.exists():
+            fechas_progreso = [progreso.fecha.strftime('%d/%m/%Y') for progreso in progresos]
+            pesos_progreso = [float(progreso.peso) for progreso in progresos]
+        
+        # Convertir a JSON para el template
+        fechas_progreso_json = json.dumps(fechas_progreso)
+        pesos_progreso_json = json.dumps(pesos_progreso)
+        
+        # Obtener ejercicios completados recientemente
         ejercicios_completados = EjercicioCompletado.objects.filter(
+            alumno=alumno
+        ).select_related(
+            'rutina_ejercicio',
+            'rutina_ejercicio__ejercicio'
+        ).order_by('-fecha')[:5]
+        
+        # Calcular asistencias
+        primer_dia_mes = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        asistencias_mes = EjercicioCompletado.objects.filter(
             alumno=alumno,
-            fecha__gte=timezone.now() - timezone.timedelta(days=30)
-        ).count()
-
-        # Obtener último pago y estado de cuota
-        ultimo_pago = alumno.pagos.order_by('-mes_correspondiente').first()
-        cuota_al_dia = False
-        if ultimo_pago:
-            mes_actual = timezone.now().date().replace(day=1)
-            cuota_al_dia = ultimo_pago.mes_correspondiente >= mes_actual
-
-        # Obtener registros de progreso recientes
-        registros_progreso = alumno.registros_progreso.order_by('-fecha')[:10]
-
+            fecha__gte=primer_dia_mes
+        ).values('fecha__date').distinct().count()
+        
+        asistencias_total = EjercicioCompletado.objects.filter(
+            alumno=alumno
+        ).values('fecha__date').distinct().count()
+        
+        # Verificar estado de la cuota
+        hoy = timezone.now().date()
+        cuota_al_dia = ultimo_pago and ultimo_pago.mes_correspondiente.month == hoy.month
+        
         context = {
             'alumno': alumno,
-            'rutinas': rutinas,
-            'ejercicios_completados': ejercicios_completados,
             'ultimo_pago': ultimo_pago,
+            'ultimo_progreso': ultimo_progreso,
+            'rutinas': rutinas,
             'cuota_al_dia': cuota_al_dia,
-            'registros_progreso': registros_progreso
+            'fechas_progreso': fechas_progreso_json,
+            'pesos_progreso': pesos_progreso_json,
+            'ejercicios_completados': ejercicios_completados,
+            'asistencias_mes': asistencias_mes,
+            'asistencias_total': asistencias_total,
         }
+        
         return render(request, 'gimnasio/perfil_alumno.html', context)
-    except Alumno.DoesNotExist:
-        messages.warning(request, 'Primero debes completar tu perfil de alumno.')
-        return redirect('gimnasio:crear_perfil_alumno')
+        
+    except Exception as e:
+        messages.error(request, f'Error al cargar el perfil: {str(e)}')
+        return redirect('gimnasio:index')
 
 @login_required
 def crear_perfil_alumno(request):

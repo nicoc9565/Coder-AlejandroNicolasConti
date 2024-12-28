@@ -3,118 +3,220 @@
 
 {% block titulo %}Mi Perfil{% endblock %}
 
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/chart.js" rel="stylesheet">
+{% endblock %}
+
 {% block contenido %}
-<div class="page-content">
-    <div class="main-container">
-        <h1 class="page-title">Mi Perfil</h1>
-        
-        <div class="row">
-            <!-- Información Personal -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="card-title mb-0">Información Personal</h4>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="mb-3">{{ alumno.nombre }}</h5>
-                        <ul class="list-unstyled">
-                            <li class="mb-2"><i class="bi bi-person-fill me-2"></i>Edad: {{ alumno.edad }} años</li>
-                            <li class="mb-2"><i class="bi bi-rulers me-2"></i>Altura: {{ alumno.altura }} cm</li>
-                            <li class="mb-2"><i class="bi bi-speedometer2 me-2"></i>Peso: {{ alumno.peso }} kg</li>
-                            <li class="mb-2"><i class="bi bi-clock-fill me-2"></i>Horario: {{ alumno.horario }}</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+<div class="container py-4">
+    <!-- Encabezado del Perfil -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-4">{{ alumno.nombre }}</h1>
+            <p class="lead text-muted">Miembro desde {{ alumno.fecha_registro|date:"F Y" }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#registrarProgresoModal">
+                <i class="bi bi-plus-circle me-2"></i>Registrar Progreso
+            </button>
+        </div>
+    </div>
 
-            <!-- Estado de Cuota -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow">
-                    <div class="card-header {% if cuota_al_dia %}bg-success{% else %}bg-danger{% endif %} text-white">
-                        <h4 class="card-title mb-0">Estado de Cuota</h4>
-                    </div>
-                    <div class="card-body">
-                        {% if ultimo_pago %}
-                            <p class="mb-2">Último pago: {{ ultimo_pago.mes_correspondiente|date:"F Y" }}</p>
-                            <p class="mb-2">Monto: ${{ ultimo_pago.monto }}</p>
-                            <p class="{% if cuota_al_dia %}text-success{% else %}text-danger{% endif %}">
-                                {% if cuota_al_dia %}
-                                    <i class="bi bi-check-circle-fill"></i> Cuota al día
-                                {% else %}
-                                    <i class="bi bi-exclamation-circle-fill"></i> Cuota pendiente
-                                {% endif %}
-                            </p>
-                        {% else %}
-                            <p class="text-danger">
-                                <i class="bi bi-exclamation-circle-fill"></i> No hay pagos registrados
-                            </p>
-                        {% endif %}
-                    </div>
+    <!-- Información Principal -->
+    <div class="row">
+        <!-- Tarjeta de Información Personal -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0"><i class="bi bi-person-circle me-2"></i>Información Personal</h4>
                 </div>
-            </div>
-
-            <!-- Progreso -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="card-title mb-0">Mi Progreso</h4>
-                    </div>
-                    <div class="card-body">
-                        {% if ultimo_progreso %}
-                            <p class="mb-2">Última actualización: {{ ultimo_progreso.fecha|date:"d/m/Y" }}</p>
-                            <p class="mb-2">Peso actual: {{ ultimo_progreso.peso }} kg</p>
-                            <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#registrarProgresoModal">
-                                <i class="bi bi-plus-circle me-2"></i>Registrar Progreso
-                            </button>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-4">
+                        {% if alumno.foto %}
+                            <img src="{{ alumno.foto.url }}" 
+                                 alt="Foto de perfil" 
+                                 class="rounded-circle me-3"
+                                 style="width: 80px; height: 80px; object-fit: cover;">
                         {% else %}
-                            <p>No hay registros de progreso</p>
-                            <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#registrarProgresoModal">
-                                <i class="bi bi-plus-circle me-2"></i>Registrar Primer Progreso
-                            </button>
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3"
+                                 style="width: 80px; height: 80px;">
+                                <i class="bi bi-person-circle text-primary" style="font-size: 3rem;"></i>
+                            </div>
                         {% endif %}
+                        <div>
+                            <h5 class="mb-1">{{ alumno.nombre }}</h5>
+                            <p class="text-muted mb-0">ID: {{ alumno.id }}</p>
+                        </div>
                     </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-calendar3 me-2"></i>Edad</span>
+                            <span class="badge bg-primary rounded-pill">{{ alumno.edad }} años</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-rulers me-2"></i>Altura</span>
+                            <span class="badge bg-primary rounded-pill">{{ alumno.altura }} cm</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-speedometer2 me-2"></i>Peso Actual</span>
+                            <span class="badge bg-primary rounded-pill">{{ alumno.peso }} kg</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-clock me-2"></i>Horario</span>
+                            <span class="badge bg-primary rounded-pill">{{ alumno.horario }}</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="card-title mb-0">Mis Rutinas</h4>
-                    </div>
-                    <div class="card-body">
-                        {% if rutinas %}
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Nombre</th>
-                                            <th>Profesor</th>
-                                            <th>Fecha de Asignación</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for rutina in rutinas %}
-                                            <tr>
-                                                <td>{{ rutina.nombre }}</td>
-                                                <td>{{ rutina.profesor.nombre }}</td>
-                                                <td>{{ rutina.fecha_asignacion|date:"d/m/Y" }}</td>
-                                                <td>
-                                                    <a href="{% url 'gimnasio:detalle_rutina' rutina.id %}" class="btn btn-sm btn-primary">
-                                                        <i class="bi bi-eye-fill"></i> Ver
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+        <!-- Tarjeta de Estado y Progreso -->
+        <div class="col-md-8 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0"><i class="bi bi-graph-up me-2"></i>Progreso y Estado</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Estado de Cuota -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card {% if cuota_al_dia %}bg-success{% else %}bg-danger{% endif %} text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="bi {% if cuota_al_dia %}bi-check-circle{% else %}bi-exclamation-circle{% endif %} me-2"></i>
+                                        Estado de Cuota
+                                    </h5>
+                                    {% if ultimo_pago %}
+                                        <p class="mb-1">Último pago: {{ ultimo_pago.mes_correspondiente|date:"F Y" }}</p>
+                                        <p class="mb-0">Monto: ${{ ultimo_pago.monto }}</p>
+                                    {% else %}
+                                        <p class="mb-0">No hay pagos registrados</p>
+                                    {% endif %}
+                                </div>
                             </div>
-                        {% else %}
-                            <p class="text-muted mb-0">No tienes rutinas asignadas.</p>
-                        {% endif %}
+                        </div>
+
+                        <!-- Asistencia -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card bg-info text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="bi bi-calendar-check me-2"></i>
+                                        Asistencia
+                                    </h5>
+                                    <p class="mb-1">Este mes: {{ asistencias_mes }} días</p>
+                                    <p class="mb-0">Total: {{ asistencias_total }} días</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gráfico de Progreso -->
+                        <div class="col-12">
+                            <canvas id="progresoChart" height="200"></canvas>
+                        </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rutinas y Ejercicios -->
+    <div class="row">
+        <!-- Rutinas Activas -->
+        <div class="col-md-8 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0"><i class="bi bi-list-check me-2"></i>Mis Rutinas</h4>
+                    <a href="{% url 'gimnasio:mis_rutinas' %}" class="btn btn-light btn-sm">Ver todas</a>
+                </div>
+                <div class="card-body">
+                    {% if rutinas %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Profesor</th>
+                                        <th>Ejercicios</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for rutina in rutinas %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ rutina.nombre }}</strong>
+                                                <br>
+                                                <small class="text-muted">Desde {{ rutina.fecha_creacion|date:"d/m/Y" }}</small>
+                                            </td>
+                                            <td>
+                                                {{ rutina.profesor.get_full_name }}
+                                                <br>
+                                                <small class="text-muted">{{ rutina.profesor.perfil.especialidad }}</small>
+                                            </td>
+                                            <td>{{ rutina.ejercicios.count }}</td>
+                                            <td>
+                                                {% if rutina.activa %}
+                                                    <span class="badge bg-success">Activa</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Inactiva</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'gimnasio:detalle_rutina' rutina.id %}" 
+                                                   class="btn btn-primary btn-sm">
+                                                    <i class="bi bi-eye-fill"></i> Ver
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-clipboard-x display-4 text-muted"></i>
+                            <p class="text-muted mt-2">No tienes rutinas asignadas.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Últimos Ejercicios Completados -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0"><i class="bi bi-trophy me-2"></i>Últimos Ejercicios</h4>
+                </div>
+                <div class="card-body">
+                    {% if ejercicios_completados %}
+                        <div class="list-group list-group-flush">
+                            {% for ejercicio in ejercicios_completados %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ ejercicio.rutina_ejercicio.ejercicio.nombre }}</h6>
+                                        <small class="text-muted">{{ ejercicio.fecha|timesince }}</small>
+                                    </div>
+                                    <p class="mb-1">
+                                        Series: {{ ejercicio.series_completadas }}
+                                        {% if ejercicio.peso_usado %}
+                                            | Peso: {{ ejercicio.peso_usado }} kg
+                                        {% endif %}
+                                    </p>
+                                    {% if ejercicio.notas %}
+                                        <small class="text-muted">{{ ejercicio.notas }}</small>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-emoji-neutral display-4 text-muted"></i>
+                            <p class="text-muted mt-2">No hay ejercicios completados.</p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -122,11 +224,11 @@
 </div>
 
 <!-- Modal para Registrar Progreso -->
-<div class="modal fade" id="registrarProgresoModal" tabindex="-1" aria-labelledby="registrarProgresoModalLabel" aria-hidden="true">
+<div class="modal fade" id="registrarProgresoModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="registrarProgresoModalLabel">Registrar Progreso</h5>
+                <h5 class="modal-title">Registrar Progreso</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="post" action="{% url 'gimnasio:registrar_progreso' %}">
@@ -143,10 +245,75 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Progreso</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Los datos ya vienen como JSON desde la vista
+    const fechas = {{ fechas_progreso|safe }} || [];
+    const pesos = {{ pesos_progreso|safe }} || [];
+    
+    if (fechas.length > 0) {
+        const ctx = document.getElementById('progresoChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: fechas,
+                datasets: [{
+                    label: 'Peso (kg)',
+                    data: pesos,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Progreso de Peso'
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Peso (kg)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Fecha'
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        const canvas = document.getElementById('progresoChart');
+        const container = canvas.parentElement;
+        container.innerHTML = `
+            <div class="text-center py-4">
+                <i class="bi bi-graph-up display-4 text-muted"></i>
+                <p class="text-muted mt-2">No hay datos de progreso disponibles.</p>
+            </div>
+        `;
+    }
+});
+</script>
 {% endblock %}

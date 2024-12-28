@@ -1,53 +1,200 @@
 {% extends 'gimnasio/base.html' %}
 
 {% block contenido %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h2 class="mb-4">Mis Rutinas</h2>
-            
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-
-            {% if rutinas %}
-                <div class="row">
-                    {% for rutina in rutinas %}
-                        <div class="col-md-6 mb-4">
-                            <div class="card h-100">
-                                <div class="card-header">
-                                    <h5 class="card-title mb-0">{{ rutina.nombre }}</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p class="card-text">
-                                        <strong>Profesor:</strong> {{ rutina.profesor.get_full_name|default:rutina.profesor.username }}
-                                    </p>
-                                    <p class="card-text">
-                                        <strong>Fecha de creación:</strong> {{ rutina.fecha_creacion|date:"d/m/Y" }}
-                                    </p>
-                                    <p class="card-text">
-                                        <strong>Ejercicios:</strong> {{ rutina.ejercicios.count }}
-                                    </p>
-                                    {% if rutina.descripcion %}
-                                        <p class="card-text">{{ rutina.descripcion }}</p>
-                                    {% endif %}
-                                    <a href="{% url 'gimnasio:detalle_rutina' rutina.id %}" class="btn btn-primary">Ver Detalles</a>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="alert alert-info">
-                    <p>Aún no tienes rutinas asignadas.</p>
-                    <p>Contacta con un profesor para que te asigne una rutina personalizada.</p>
-                </div>
-            {% endif %}
+<div class="container py-4">
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-5 mb-0">Mis Rutinas</h1>
+            <p class="text-muted lead">Gestiona tus rutinas de entrenamiento</p>
         </div>
+        <a href="{% url 'gimnasio:perfil_alumno' %}" class="btn btn-outline-primary">
+            <i class="bi bi-person-circle me-2"></i>Volver al Perfil
+        </a>
     </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if rutinas %}
+        <!-- Filtros y Búsqueda -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-primary text-white">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control" id="searchRutinas" 
+                           placeholder="Buscar rutinas..." onkeyup="filterRutinas()">
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="btn-group">
+                    <button class="btn btn-outline-primary active" onclick="showAll()">
+                        <i class="bi bi-grid me-1"></i>Todas
+                    </button>
+                    <button class="btn btn-outline-success" onclick="filterActive()">
+                        <i class="bi bi-check-circle me-1"></i>Activas
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="filterInactive()">
+                        <i class="bi bi-pause-circle me-1"></i>Inactivas
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de Rutinas -->
+        <div class="row" id="rutinasContainer">
+            {% for rutina in rutinas %}
+                <div class="col-md-6 col-lg-4 mb-4 rutina-card" 
+                     data-active="{{ rutina.activa|lower }}"
+                     data-name="{{ rutina.nombre|lower }}">
+                    <div class="card h-100 shadow-sm hover-shadow">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">{{ rutina.nombre }}</h5>
+                            <span class="badge {% if rutina.activa %}bg-success{% else %}bg-secondary{% endif %}">
+                                {% if rutina.activa %}Activa{% else %}Inactiva{% endif %}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-person-circle text-primary me-2"></i>
+                                    <span><strong>Profesor:</strong></span>
+                                </div>
+                                <p class="ms-4 mb-0">{{ rutina.profesor.get_full_name|default:rutina.profesor.username }}</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-calendar3 text-primary me-2"></i>
+                                    <span><strong>Fecha de creación:</strong></span>
+                                </div>
+                                <p class="ms-4 mb-0">{{ rutina.fecha_creacion|date:"d/m/Y" }}</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-list-check text-primary me-2"></i>
+                                    <span><strong>Ejercicios:</strong></span>
+                                </div>
+                                <p class="ms-4 mb-0">{{ rutina.ejercicios.count }} ejercicios</p>
+                            </div>
+
+                            {% if rutina.descripcion %}
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-info-circle text-primary me-2"></i>
+                                        <span><strong>Descripción:</strong></span>
+                                    </div>
+                                    <p class="ms-4 mb-0">{{ rutina.descripcion|truncatechars:100 }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <a href="{% url 'gimnasio:detalle_rutina' rutina.id %}" 
+                               class="btn btn-primary w-100">
+                                <i class="bi bi-eye-fill me-2"></i>Ver Detalles
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-clipboard-x display-1 text-muted mb-3"></i>
+            <h3>No tienes rutinas asignadas</h3>
+            <p class="text-muted mb-4">Contacta con un profesor para que te asigne una rutina personalizada.</p>
+            <a href="{% url 'gimnasio:perfil_alumno' %}" class="btn btn-primary">
+                <i class="bi bi-arrow-left me-2"></i>Volver al Perfil
+            </a>
+        </div>
+    {% endif %}
 </div>
+
+<!-- Estilos adicionales -->
+<style>
+.hover-shadow {
+    transition: all 0.3s ease;
+}
+.hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+.card-header {
+    border-bottom: none;
+}
+.badge {
+    font-size: 0.8rem;
+    padding: 0.5em 0.8em;
+}
+</style>
+
+<!-- Scripts para filtrado y búsqueda -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicialmente mostrar todas las rutinas
+    showAll();
+});
+
+function filterRutinas() {
+    const searchText = document.getElementById('searchRutinas').value.toLowerCase();
+    const cards = document.getElementsByClassName('rutina-card');
+    
+    Array.from(cards).forEach(card => {
+        const name = card.dataset.name;
+        if (name.includes(searchText)) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function showAll() {
+    const cards = document.getElementsByClassName('rutina-card');
+    Array.from(cards).forEach(card => {
+        card.style.display = '';
+    });
+    setActiveButton('Todas');
+}
+
+function filterActive() {
+    filterByStatus('true');
+    setActiveButton('Activas');
+}
+
+function filterInactive() {
+    filterByStatus('false');
+    setActiveButton('Inactivas');
+}
+
+function filterByStatus(status) {
+    const cards = document.getElementsByClassName('rutina-card');
+    Array.from(cards).forEach(card => {
+        if (card.dataset.active === status) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function setActiveButton(type) {
+    const buttons = document.querySelector('.btn-group').children;
+    Array.from(buttons).forEach(button => {
+        button.classList.remove('active');
+        if (button.textContent.includes(type)) {
+            button.classList.add('active');
+        }
+    });
+}
+</script>
 {% endblock %}
