@@ -1,0 +1,45 @@
+{% extends 'gimnasio/base.html' %}
+{% load static %}
+
+{% block titulo %}{{ titulo }}{% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h2 class="h4 mb-0">{{ titulo }}</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        ¿Estás seguro de que deseas eliminar la rutina "{{ rutina.nombre }}"? Esta acción no se puede deshacer.
+                    </div>
+
+                    <dl class="row">
+                        <dt class="col-sm-3">Alumno:</dt>
+                        <dd class="col-sm-9">{{ rutina.alumno.get_full_name|default:rutina.alumno.username }}</dd>
+                        
+                        <dt class="col-sm-3">Descripción:</dt>
+                        <dd class="col-sm-9">{{ rutina.descripcion|default:"Sin descripción" }}</dd>
+                        
+                        <dt class="col-sm-3">Fecha de creación:</dt>
+                        <dd class="col-sm-9">{{ rutina.fecha_creacion|date:"d/m/Y" }}</dd>
+                    </dl>
+
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Eliminar Rutina
+                        </button>
+                        <a href="{% url 'gimnasio:ejercicios_rutina' rutina.id %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

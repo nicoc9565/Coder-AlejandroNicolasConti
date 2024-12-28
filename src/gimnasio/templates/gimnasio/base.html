@@ -123,99 +123,112 @@
             {% block contenido %}{% endblock %}
         </main>
 
-        <footer class="site-footer">
+        {% block footer %}
+        <!-- Footer -->
+        <footer class="footer bg-dark text-white py-4">
             <div class="container">
-                <div class="row">
-                    <div class="col-md-4 footer-section">
-                        <h4>Sobre Nosotros</h4>
-                        <p>MTOR-COMPLEX es tu destino para alcanzar tus metas fitness con entrenamiento personalizado y asesoramiento experto.</p>
-                        <div class="footer-social">
-                            <a href="#"><i class="bi bi-facebook"></i></a>
-                            <a href="#"><i class="bi bi-instagram"></i></a>
-                            <a href="#"><i class="bi bi-twitter"></i></a>
+                <div class="row g-3">
+                    <!-- Columna 1: Logo y Descripción -->
+                    <div class="col-lg-4 col-md-6">
+                        <h5 class="mb-3">MTOR-COMPLEX</h5>
+                        <p class="mb-3">Tu gimnasio de confianza para alcanzar tus metas fitness. Entrenamiento personalizado y comunidad motivadora.</p>
+                        <div class="social-links">
+                            <a href="#" class="me-3 text-white"><i class="bi bi-facebook"></i></a>
+                            <a href="#" class="me-3 text-white"><i class="bi bi-instagram"></i></a>
+                            <a href="#" class="me-3 text-white"><i class="bi bi-twitter"></i></a>
+                            <a href="#" class="text-white"><i class="bi bi-youtube"></i></a>
                         </div>
                     </div>
-                    <div class="col-md-4 footer-section">
-                        <h4>Enlaces Rápidos</h4>
-                        <ul>
-                            <li><a href="{% url 'gimnasio:index' %}">Inicio</a></li>
-                            <li><a href="#">Servicios</a></li>
-                            <li><a href="#">Horarios</a></li>
-                            <li><a href="#">Contacto</a></li>
+                    
+                    <!-- Columna 2: Enlaces Rápidos -->
+                    <div class="col-lg-2 col-md-6">
+                        <h5 class="mb-3">Enlaces</h5>
+                        <ul class="list-unstyled footer-links">
+                            <li class="mb-1"><a href="{% url 'gimnasio:index' %}" class="text-white text-decoration-none">Inicio</a></li>
+                            {% if user.is_authenticated %}
+                                {% if user.perfil.es_profesor %}
+                                    <li class="mb-1"><a href="{% url 'gimnasio:panel_profesor' %}" class="text-white text-decoration-none">Panel</a></li>
+                                    <li class="mb-1"><a href="{% url 'gimnasio:perfil_profesor' %}" class="text-white text-decoration-none">Mi Perfil</a></li>
+                                {% else %}
+                                    <li class="mb-1"><a href="{% url 'gimnasio:perfil_alumno' %}" class="text-white text-decoration-none">Mi Perfil</a></li>
+                                    <li class="mb-1"><a href="{% url 'gimnasio:mis_rutinas' %}" class="text-white text-decoration-none">Mis Rutinas</a></li>
+                                {% endif %}
+                            {% else %}
+                                <li class="mb-1"><a href="{% url 'gimnasio:registro' %}" class="text-white text-decoration-none">Registrarse</a></li>
+                                <li class="mb-1"><a href="{% url 'gimnasio:iniciar_sesion' %}" class="text-white text-decoration-none">Iniciar Sesión</a></li>
+                            {% endif %}
                         </ul>
                     </div>
-                    <div class="col-md-4 footer-section">
-                        <h4>Contacto</h4>
-                        <ul>
-                            <li><i class="bi bi-geo-alt"></i> Av. Siempre Viva 123</li>
-                            <li><i class="bi bi-telephone"></i> +54 123 456 7890</li>
-                            <li><i class="bi bi-envelope"></i> info@mtor-complex.com</li>
+                    
+                    <!-- Columna 3: Horarios -->
+                    <div class="col-lg-3 col-md-6">
+                        <h5 class="mb-3">Horarios</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-1">Lunes a Viernes: 7:00 - 22:00</li>
+                            <li class="mb-1">Sábados: 8:00 - 20:00</li>
+                            <li class="mb-1">Domingos: 9:00 - 14:00</li>
                         </ul>
                     </div>
-                </div>
-                <div class="text-center py-3 mt-4">
-                    <p class="mb-0">&copy; 2023 MTOR-COMPLEX. Todos los derechos reservados.</p>
+                    
+                    <!-- Columna 4: Contacto -->
+                    <div class="col-lg-3 col-md-6">
+                        <h5 class="mb-3">Contacto</h5>
+                        <ul class="list-unstyled footer-contact">
+                            <li class="mb-2">
+                                <i class="bi bi-geo-alt-fill me-2"></i>
+                                Av. Siempreviva 742
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-telephone-fill me-2"></i>
+                                +54 (123) 456-7890
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-envelope-fill me-2"></i>
+                                info@mtor-complex.com
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
+            <!-- Copyright -->
+            <div class="text-center py-2 mt-3 border-top border-secondary">
+                <small class="mb-0">&copy; {% now "Y" %} MTOR-COMPLEX. Todos los derechos reservados.</small>
+            </div>
         </footer>
+        {% endblock %}
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-<<<<<<< HEAD
             // Inicializar los toasts
             var toastElList = [].slice.call(document.querySelectorAll('.toast'));
             var toastList = toastElList.map(function(toastEl) {
                 return new bootstrap.Toast(toastEl, {
-=======
-            // Manejo de toasts
-            var toastElements = document.querySelectorAll('.toast');
-            toastElements.forEach(function(toast) {
-                new bootstrap.Toast(toast, {
->>>>>>> dev
                     autohide: true,
                     delay: 3000
                 });
             });
-<<<<<<< HEAD
             toastList.forEach(toast => toast.show());
 
-            // Efecto de scroll en el navbar para la página de inicio
-            if (document.querySelector('.navbar-transparent')) {
-                window.addEventListener('scroll', function() {
-                    var navbar = document.querySelector('.navbar-transparent');
+            // Efecto de scroll en el navbar
+            const navbar = document.querySelector('.navbar-transparent');
+            if (navbar) {
+                const updateNavbar = () => {
                     if (window.scrollY > 50) {
                         navbar.classList.add('scrolled');
                     } else {
                         navbar.classList.remove('scrolled');
                     }
-                });
+                };
+
+                // Ejecutar al cargar la página
+                updateNavbar();
+
+                // Ejecutar al hacer scroll
+                window.addEventListener('scroll', updateNavbar);
             }
-=======
-
-            // Efecto de scroll en el navbar
-            const navbar = document.querySelector('.navbar');
-            const isHome = document.body.classList.contains('home');
-
-            function updateNavbar() {
-                if (isHome) {
-                    if (window.scrollY > 50) {
-                        navbar.classList.remove('navbar-transparent');
-                        navbar.classList.add('navbar-solid');
-                    } else {
-                        navbar.classList.add('navbar-transparent');
-                        navbar.classList.remove('navbar-solid');
-                    }
-                }
-            }
-
-            // Ejecutar al cargar la página
-            updateNavbar();
-
-            // Ejecutar al hacer scroll
-            window.addEventListener('scroll', updateNavbar);
->>>>>>> dev
         });
     </script>
     {% block scripts %}{% endblock %}

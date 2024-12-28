@@ -1,17 +1,20 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from django.db.models import Count, Avg
+from django.db.models import Count, Avg, Q
 from django.utils import timezone
-from .models import *
-from .forms import RegistroForm, RutinaForm, RutinaEjercicioForm, EjercicioCompletadoForm, AlumnoForm, PagoCuotaForm
 from django.http import JsonResponse
-<<<<<<< HEAD
-from .models import RutinaEjercicio
-from django.db.models import Q
-=======
->>>>>>> dev
+from django.contrib.auth.models import User
+from .models import (
+    Perfil, Alumno, Ejercicio, Rutina, RutinaEjercicio, 
+    EjercicioCompletado, PagoCuota
+)
+from .forms import (
+    RegistroForm, RutinaForm, RutinaEjercicioForm, 
+    EjercicioCompletadoForm, AlumnoForm, PagoCuotaForm,
+    EjercicioForm
+)
 
 def es_profesor(user):
     """Verifica si el usuario es profesor o superusuario."""
@@ -44,7 +47,7 @@ def iniciar_sesion(request):
         else:
             messages.error(request, 'Usuario o contraseña incorrectos')
     
-    return render(request, 'gimnasio/login.html')
+    return render(request, 'gimnasio/iniciar_sesion.html')
 
 def registro(request):
     """Maneja el registro de nuevos usuarios."""
@@ -69,6 +72,12 @@ def logout_view(request):
     """Cierra la sesión del usuario."""
     logout(request)
     messages.success(request, '¡Has cerrado sesión exitosamente!')
+    return redirect('gimnasio:index')
+
+@login_required
+def cerrar_sesion(request):
+    logout(request)
+    messages.success(request, 'Has cerrado sesión correctamente.')
     return redirect('gimnasio:index')
 
 @login_required
@@ -192,49 +201,6 @@ def completar_ejercicio(request, rutina_ejercicio_id):
 @login_required
 @user_passes_test(es_profesor)
 def panel_profesor(request):
-<<<<<<< HEAD
-    from django.utils import timezone
-    
-    profesor = request.user
-
-    orden = request.GET.get('orden', 'nombre')
-    
-    alumnos = Alumno.objects.filter(profesor=profesor, activo=True)
-    
-    if orden == 'nombre':
-        alumnos = alumnos.order_by('nombre')
-    elif orden == 'fecha':
-        alumnos = alumnos.order_by('-fecha_registro')
-    elif orden == 'cuota':
-        mes_actual = timezone.now().date().replace(day=1)
-        alumnos = list(alumnos)
-        alumnos.sort(key=lambda a: (a.cuota_al_dia, a.nombre))
-    
-    # Obtener las rutinas activas para cada alumno
-    alumnos_con_rutinas = []
-    for alumno in alumnos:
-        rutinas_alumno = Rutina.objects.filter(alumno=alumno, activa=True).order_by('-fecha_creacion')
-        alumnos_con_rutinas.append({
-            'alumno': alumno,
-            'rutinas': rutinas_alumno
-        })
-    
-    total_alumnos = len(alumnos) if isinstance(alumnos, list) else alumnos.count()
-    rutinas_activas = Rutina.objects.filter(profesor=profesor, activa=True).count()
-    ejercicios_hoy = EjercicioCompletado.objects.filter(
-        alumno__profesor=profesor,
-        fecha__date=timezone.now().date()
-    ).count()
-
-    context = {
-        'alumnos': alumnos_con_rutinas,
-        'total_alumnos': total_alumnos,
-        'rutinas_activas': rutinas_activas,
-        'ejercicios_hoy': ejercicios_hoy,
-    }
-    
-    return render(request, 'gimnasio/panel_profesor.html', context)
-=======
     """Panel principal del profesor con resumen de alumnos y rutinas."""
     try:
         # Obtener parámetros de filtrado y ordenamiento
@@ -263,7 +229,6 @@ def panel_profesor(request):
             'rutinaejercicio_set',
             'rutinaejercicio_set__ejercicio'
         ).order_by('-fecha_creacion')
->>>>>>> dev
 
         rutinas_procesadas = []
         for rutina in rutinas_activas:
@@ -333,130 +298,6 @@ def asignar_alumno(request, alumno_id):
 
 @login_required
 @user_passes_test(es_profesor)
-<<<<<<< HEAD
-def crear_rutina(request):
-    if request.method == 'POST':
-        form = RutinaForm(request.POST)
-        if form.is_valid():
-            rutina = form.save(commit=False)
-            rutina.profesor = request.user
-            
-            # Asignar el profesor al alumno si aún no está asignado
-            if not rutina.alumno.profesor:
-                rutina.alumno.profesor = request.user
-                rutina.alumno.save()
-            
-            rutina.save()
-
-            # Procesar los ejercicios
-            ejercicios_data = []
-            for key in request.POST:
-                if key.startswith('nombre_ejercicio-'):
-                    index = key.split('-')[1]
-                    ejercicio_data = {
-                        'grupo_muscular': request.POST.get(f'grupo_muscular-{index}'),
-                        'nombre_ejercicio': request.POST.get(f'nombre_ejercicio-{index}'),
-                        'series': request.POST.get(f'series-{index}'),
-                        'repeticiones': request.POST.get(f'repeticiones-{index}'),
-                        'peso': request.POST.get(f'peso-{index}'),
-                    }
-                    ejercicios_data.append(ejercicio_data)
-
-            # Crear los ejercicios y asociarlos a la rutina
-            for i, ejercicio_data in enumerate(ejercicios_data, start=1):
-                ejercicio, _ = Ejercicio.objects.get_or_create(
-                    nombre=ejercicio_data['nombre_ejercicio'],
-                    grupo_muscular=ejercicio_data['grupo_muscular'],
-                    defaults={
-                        'descripcion': '',
-                        'creado_por': request.user
-                    }
-                )
-                
-                RutinaEjercicio.objects.create(
-                    rutina=rutina,
-                    ejercicio=ejercicio,
-                    series=ejercicio_data['series'],
-                    repeticiones=ejercicio_data['repeticiones'],
-                    peso=ejercicio_data['peso'],
-                    descanso='60 seg',  # Valor por defecto
-                    orden=i
-                )
-            
-            messages.success(request, 'Rutina creada exitosamente')
-            return redirect('gimnasio:panel_profesor')
-    else:
-        # Filtrar alumnos para mostrar solo los que no tienen profesor o son del profesor actual
-        form = RutinaForm()
-        form.fields['alumno'].queryset = Alumno.objects.filter(
-            Q(profesor=request.user) | Q(profesor__isnull=True)
-        ).order_by('nombre')
-    
-    context = {
-        'form': form,
-        'titulo': 'Nueva Rutina'
-    }
-    return render(request, 'gimnasio/rutinas/crear_rutina.html', context)
-
-@login_required
-@user_passes_test(es_profesor)
-def crear_rutina_alumno(request, alumno_id):
-    alumno = get_object_or_404(Alumno, id=alumno_id)
-    
-    # Asignar el profesor al alumno si aún no está asignado
-    if not alumno.profesor:
-        alumno.profesor = request.user
-        alumno.save()
-    
-    if request.method == 'POST':
-        form = RutinaForm(request.POST)
-        if form.is_valid():
-            rutina = form.save(commit=False)
-            rutina.profesor = request.user
-            rutina.alumno = alumno
-            rutina.save()
-            
-            messages.success(request, f'Rutina creada exitosamente para {alumno.nombre}')
-            return redirect('gimnasio:agregar_ejercicios_rutina', rutina_id=rutina.id)
-    else:
-        form = RutinaForm(initial={'alumno': alumno})
-    
-    context = {
-        'form': form,
-        'alumno': alumno,
-        'titulo': f'Nueva Rutina para {alumno.nombre}'
-    }
-    return render(request, 'gimnasio/rutinas/crear_rutina.html', context)
-
-@login_required
-@user_passes_test(es_profesor)
-def gestionar_rutina(request, alumno_id):
-    alumno = get_object_or_404(Alumno, id=alumno_id)
-    rutinas = Rutina.objects.filter(alumno=alumno).order_by('-fecha_creacion')
-    
-    if request.method == 'POST':
-        form = RutinaForm(request.POST)
-        if form.is_valid():
-            rutina = form.save(commit=False)
-            rutina.alumno = alumno
-            rutina.profesor = request.user
-            rutina.save()
-            messages.success(request, 'Rutina creada exitosamente')
-            return redirect('gimnasio:agregar_ejercicios_rutina', rutina_id=rutina.id)
-    else:
-        form = RutinaForm()
-    
-    context = {
-        'alumno': alumno,
-        'rutinas': rutinas,
-        'form': form,
-    }
-    return render(request, 'gimnasio/gestionar_rutinas.html', context)
-
-@login_required
-@user_passes_test(es_profesor)
-=======
->>>>>>> dev
 def ver_progreso(request, alumno_id):
     """Muestra el progreso detallado de un alumno."""
     alumno = get_object_or_404(
@@ -692,40 +533,55 @@ def detalle_pago(request, pago_id):
 
 @login_required
 def ver_rutina(request, rutina_id):
-    rutina = get_object_or_404(Rutina, id=rutina_id)
-    if not es_profesor(request.user) and rutina.alumno.usuario != request.user:
-        messages.error(request, 'No tienes permiso para ver esta rutina')
-        return redirect('gimnasio:perfil_alumno')
-    
-    ejercicios = RutinaEjercicio.objects.filter(rutina=rutina).order_by('orden')
-    return render(request, 'gimnasio/rutinas/detalle_rutina.html', {
-        'rutina': rutina,
-        'ejercicios': ejercicios
-    })
-
-@login_required
-@user_passes_test(es_profesor)
-def agregar_ejercicios_rutina(request, rutina_id):
-    rutina = get_object_or_404(Rutina, id=rutina_id)
-    
-    if request.method == 'POST':
-        form = RutinaEjercicioForm(request.POST)
-        if form.is_valid():
-            detalle = form.save(commit=False)
-            detalle.rutina = rutina
-            detalle.save()
-            messages.success(request, 'Ejercicio agregado a la rutina.')
-            return redirect('gimnasio:agregar_ejercicios_rutina', rutina_id=rutina.id)
-    else:
-        form = RutinaEjercicioForm()
-    
-    ejercicios_actuales = rutina.ejercicios.through.objects.filter(rutina=rutina).order_by('orden')
-    
-    return render(request, 'gimnasio/rutinas/agregar_ejercicios.html', {
-        'form': form,
-        'rutina': rutina,
-        'ejercicios': ejercicios_actuales
-    })
+    """Muestra los detalles de una rutina específica."""
+    try:
+        # Obtener la rutina con todas sus relaciones
+        rutina = get_object_or_404(
+            Rutina.objects.select_related(
+                'profesor',
+                'alumno'
+            ).prefetch_related(
+                'ejercicios',
+                'rutinaejercicio_set__ejercicio'
+            ),
+            id=rutina_id
+        )
+        
+        # Verificar permisos
+        if not (request.user.perfil.es_profesor or rutina.alumno.usuario == request.user):
+            messages.error(request, 'No tienes permiso para ver esta rutina')
+            return redirect('gimnasio:index')
+            
+        # Obtener ejercicios de la rutina
+        ejercicios = RutinaEjercicio.objects.filter(
+            rutina=rutina
+        ).select_related(
+            'ejercicio'
+        ).order_by('orden')
+        
+        # Obtener ejercicios completados si es necesario
+        ejercicios_completados = None
+        if request.user.perfil.es_profesor:
+            ejercicios_completados = EjercicioCompletado.objects.filter(
+                rutina_ejercicio__rutina=rutina
+            ).select_related(
+                'rutina_ejercicio',
+                'rutina_ejercicio__ejercicio'
+            ).order_by('-fecha')
+        
+        context = {
+            'rutina': rutina,
+            'ejercicios': ejercicios,
+            'ejercicios_completados': ejercicios_completados,
+            'is_profesor': request.user.perfil.es_profesor
+        }
+        
+        template = 'gimnasio/rutinas/ver_rutina.html'
+        return render(request, template, context)
+        
+    except Exception as e:
+        messages.error(request, f'Error al cargar la rutina: {str(e)}')
+        return redirect('gimnasio:panel_profesor' if request.user.perfil.es_profesor else 'gimnasio:perfil_alumno')
 
 @login_required
 def ver_mis_rutinas(request):
@@ -898,11 +754,22 @@ def eliminar_ejercicio(request, ejercicio_id):
 @login_required
 @user_passes_test(es_profesor)
 def activar_rutina(request, rutina_id):
-    rutina = get_object_or_404(Rutina, id=rutina_id, profesor=request.user)
+    """Activa una rutina existente."""
+    rutina = get_object_or_404(Rutina, id=rutina_id)
     rutina.activa = True
     rutina.save()
-    messages.success(request, f'La rutina {rutina.nombre} ha sido activada.')
-    return redirect('gimnasio:gestionar_rutina', alumno_id=rutina.alumno.id)
+    messages.success(request, f'La rutina "{rutina.nombre}" ha sido activada.')
+    return redirect('gimnasio:gestionar_rutinas_alumno', alumno_id=rutina.alumno.id)
+
+@login_required
+@user_passes_test(es_profesor)
+def desactivar_rutina(request, rutina_id):
+    """Desactiva una rutina existente."""
+    rutina = get_object_or_404(Rutina, id=rutina_id)
+    rutina.activa = False
+    rutina.save()
+    messages.success(request, f'La rutina "{rutina.nombre}" ha sido desactivada.')
+    return redirect('gimnasio:gestionar_rutinas_alumno', alumno_id=rutina.alumno.id)
 
 @login_required
 @user_passes_test(es_profesor)
@@ -1070,3 +937,180 @@ def perfil_profesor(request):
     except Exception as e:
         messages.error(request, f'Error al cargar el perfil: {str(e)}')
         return redirect('gimnasio:index')
+
+@login_required
+def alumnos_profesor(request):
+    # Verificar que el usuario sea profesor
+    if not hasattr(request.user, 'perfil') or not request.user.perfil.es_profesor:
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('gimnasio:index')
+    
+    # Obtener todos los alumnos que tienen rutinas asignadas por este profesor
+    alumnos = Alumno.objects.filter(
+        rutinas__profesor__id=request.user.id  # Rutinas asignadas por este profesor
+    ).distinct().select_related('usuario', 'usuario__perfil')
+    
+    context = {
+        'alumnos': alumnos,
+        'titulo': 'Mis Alumnos'
+    }
+    
+    return render(request, 'gimnasio/alumnos_profesor.html', context)
+
+@login_required
+def ejercicios_rutina(request, rutina_id):
+    """Ver los ejercicios de una rutina específica."""
+    rutina = get_object_or_404(Rutina, id=rutina_id)
+    
+    # Verificar que el usuario tenga acceso a esta rutina
+    if not request.user.perfil.es_profesor and rutina.alumno != request.user:
+        messages.error(request, 'No tienes permiso para ver esta rutina.')
+        return redirect('gimnasio:mis_rutinas')
+    
+    ejercicios = DetalleRutina.objects.filter(rutina=rutina).select_related('ejercicio')
+    
+    context = {
+        'rutina': rutina,
+        'ejercicios': ejercicios,
+        'titulo': f'Ejercicios - {rutina.nombre}'
+    }
+    
+    return render(request, 'gimnasio/ejercicios_rutina.html', context)
+
+@login_required
+def editar_rutina(request, rutina_id):
+    """Editar una rutina existente."""
+    rutina = get_object_or_404(Rutina, id=rutina_id)
+    
+    # Verificar que el usuario sea el profesor de la rutina
+    if not request.user.perfil.es_profesor or rutina.profesor != request.user:
+        messages.error(request, 'No tienes permiso para editar esta rutina.')
+        return redirect('gimnasio:panel_profesor')
+    
+    if request.method == 'POST':
+        form = RutinaForm(request.POST, instance=rutina)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Rutina actualizada correctamente.')
+            return redirect('gimnasio:ejercicios_rutina', rutina_id=rutina.id)
+    else:
+        form = RutinaForm(instance=rutina)
+    
+    context = {
+        'form': form,
+        'rutina': rutina,
+        'titulo': f'Editar Rutina - {rutina.nombre}'
+    }
+    
+    return render(request, 'gimnasio/editar_rutina.html', context)
+
+@login_required
+@user_passes_test(es_profesor)
+def eliminar_rutina(request, rutina_id):
+    """Eliminar una rutina existente."""
+    rutina = get_object_or_404(Rutina, id=rutina_id)
+    
+    # Verificar que el usuario sea el profesor de la rutina
+    if not request.user.perfil.es_profesor or rutina.profesor != request.user:
+        messages.error(request, 'No tienes permiso para eliminar esta rutina.')
+        return redirect('gimnasio:panel_profesor')
+    
+    if request.method == 'POST':
+        nombre_rutina = rutina.nombre
+        rutina.delete()
+        messages.success(request, f'La rutina "{nombre_rutina}" ha sido eliminada.')
+        return redirect('gimnasio:panel_profesor')
+    
+    context = {
+        'rutina': rutina,
+        'titulo': f'Eliminar Rutina - {rutina.nombre}'
+    }
+    
+    return render(request, 'gimnasio/eliminar_rutina.html', context)
+
+@login_required
+@user_passes_test(es_profesor)
+def ejercicios_rutina_profesor(request, rutina_id):
+    """Vista para que el profesor gestione los ejercicios de una rutina."""
+    rutina = get_object_or_404(Rutina, id=rutina_id)
+    
+    # Verificar que el profesor sea el dueño de la rutina
+    if rutina.profesor != request.user:
+        messages.error(request, 'No tienes permiso para gestionar esta rutina.')
+        return redirect('gimnasio:panel_profesor')
+    
+    # Obtener los ejercicios actuales de la rutina
+    ejercicios = RutinaEjercicio.objects.filter(rutina=rutina).select_related('ejercicio').order_by('orden')
+    
+    # Si se envía el formulario para agregar ejercicio
+    if request.method == 'POST':
+        form = RutinaEjercicioForm(request.POST)
+        if form.is_valid():
+            ejercicio = form.save(commit=False)
+            ejercicio.rutina = rutina
+            ejercicio.save()
+            messages.success(request, 'Ejercicio agregado correctamente.')
+            return redirect('gimnasio:ejercicios_rutina_profesor', rutina_id=rutina.id)
+    else:
+        form = RutinaEjercicioForm()
+    
+    context = {
+        'rutina': rutina,
+        'ejercicios': ejercicios,
+        'form': form,
+        'titulo': f'Gestionar Ejercicios - {rutina.nombre}'
+    }
+    
+    return render(request, 'gimnasio/ejercicios_rutina_profesor.html', context)
+
+@login_required
+def crear_ejercicio(request):
+    """Vista para crear un nuevo ejercicio."""
+    # Verificar permisos
+    if not hasattr(request.user, 'perfil') or not request.user.perfil.es_profesor:
+        messages.error(request, 'No tienes permiso para crear ejercicios.')
+        return redirect('gimnasio:index')
+    
+    try:
+        if request.method == 'POST':
+            form = EjercicioForm(request.POST)
+            if form.is_valid():
+                ejercicio = form.save(commit=False)
+                ejercicio.creado_por = request.user
+                ejercicio.save()
+                messages.success(request, 'Ejercicio creado correctamente.')
+                return redirect('gimnasio:panel_profesor')
+        else:
+            form = EjercicioForm()
+        
+        context = {
+            'form': form,
+            'titulo': 'Crear Ejercicio'
+        }
+        
+        return render(request, 'gimnasio/crear_ejercicio.html', context)
+    except Exception as e:
+        messages.error(request, f'Error al crear el ejercicio: {str(e)}')
+        return redirect('gimnasio:panel_profesor')
+
+@login_required
+@user_passes_test(es_profesor)
+def gestionar_rutinas_alumno(request, alumno_id):
+    # Verificar que el usuario sea profesor
+    if not hasattr(request.user, 'perfil') or not request.user.perfil.es_profesor:
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('gimnasio:index')
+    
+    # Obtener el alumno
+    alumno = get_object_or_404(Alumno, id=alumno_id)
+    
+    # Obtener todas las rutinas del alumno
+    rutinas = alumno.rutinas.all().order_by('-fecha_creacion')
+    
+    context = {
+        'alumno': alumno,
+        'rutinas': rutinas,
+        'titulo': f'Rutinas de {alumno.usuario.get_full_name() or alumno.usuario.username}'
+    }
+    
+    return render(request, 'gimnasio/gestionar_rutinas_alumno.html', context)

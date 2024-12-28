@@ -6,7 +6,19 @@
 {% block navbar %}{% endblock %}
 
 {% block extra_css %}
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Custom CSS -->
 <link rel="stylesheet" href="{% static 'gimnasio/css/styles.css' %}">
+<style>
+    body {
+        padding-top: 0 !important;
+        margin: 0;
+        overflow: hidden;
+    }
+</style>
 {% endblock %}
 
 {% block contenido %}
@@ -16,7 +28,7 @@
             <img src="{% static 'gimnasio/images/mtor-complex.png' %}" alt="MTOR-Complex">
         </div>
         
-        <h2>Bienvenido</h2>
+        <h2>¡Bienvenido!</h2>
         <p class="subtitle">Inicia sesión para continuar</p>
 
         {% if messages %}
@@ -89,5 +101,18 @@
             icon.classList.add('bi-eye');
         }
     }
+
+    // Animación de entrada
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginBox = document.querySelector('.login-box');
+        loginBox.style.opacity = '0';
+        loginBox.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            loginBox.style.transition = 'all 0.6s ease';
+            loginBox.style.opacity = '1';
+            loginBox.style.transform = 'translateY(0)';
+        }, 100);
+    });
 </script>
 {% endblock %}

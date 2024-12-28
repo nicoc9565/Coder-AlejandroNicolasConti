@@ -1,0 +1,58 @@
+{% extends 'gimnasio/base.html' %}
+{% load static %}
+
+{% block titulo %}Mis Alumnos{% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h2 mb-4">Mis Alumnos</h1>
+            
+            {% if alumnos %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Rutinas Activas</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alumno in alumnos %}
+                                <tr>
+                                    <td>
+                                        {{ alumno.usuario.get_full_name|default:alumno.usuario.username }}
+                                    </td>
+                                    <td>{{ alumno.usuario.email }}</td>
+                                    <td>
+                                        {{ alumno.rutinas.count }}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'gimnasio:gestionar_rutinas_alumno' alumno.id %}" 
+                                               class="btn btn-sm btn-primary">
+                                                <i class="bi bi-list-check"></i> Ver Rutinas
+                                            </a>
+                                            <a href="{% url 'gimnasio:crear_rutina_alumno' alumno.id %}" 
+                                               class="btn btn-sm btn-success">
+                                                <i class="bi bi-plus-circle"></i> Nueva Rutina
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    No tienes alumnos asignados aún.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

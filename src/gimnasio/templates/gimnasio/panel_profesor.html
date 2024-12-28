@@ -1,247 +1,65 @@
 {% extends 'gimnasio/base.html' %}
+{% load static %}
 
-{% block titulo %}Panel del Profesor{% endblock %}
+{% block titulo %}Panel de Control{% endblock %}
 
 {% block contenido %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="mb-4">Panel del Profesor</h1>
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h2 mb-4">Panel de Control</h1>
             
-            <div class="row mb-4">
-                <div class="col-md-4">
-                    <div class="card bg-primary text-white">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Total Alumnos</h5>
-                            <p class="card-text display-4">{{ estadisticas.total_alumnos }}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card bg-success text-white">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Rutinas Activas</h5>
-                            <p class="card-text display-4">{{ estadisticas.rutinas_activas }}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card bg-info text-white">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Ejercicios Completados Hoy</h5>
-                            <p class="card-text display-4">{{ estadisticas.ejercicios_hoy }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Acciones Rápidas</h5>
-                        </div>
+            <!-- Tarjetas de Acceso Rápido -->
+            <div class="row g-4">
+                <!-- Alumnos -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100">
                         <div class="card-body">
-                            <a href="{% url 'gimnasio:crear_rutina' %}" class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Nueva Rutina
-                            </a>
-                            <a href="{% url 'gimnasio:ver_alumnos' %}" class="btn btn-success">
-                                <i class="fas fa-users"></i> Ver Alumnos
+                            <h5 class="card-title">
+                                <i class="bi bi-people-fill text-primary me-2"></i>
+                                Mis Alumnos
+                            </h5>
+                            <p class="card-text">Gestiona tus alumnos y sus rutinas personalizadas.</p>
+                            <a href="{% url 'gimnasio:alumnos_profesor' %}" class="btn btn-primary">
+                                Ver Alumnos
                             </a>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="card mb-4">
-                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Rutinas Activas</h5>
-                    <a href="{% url 'gimnasio:crear_rutina' %}" class="btn btn-light">
-                        <i class="fas fa-plus"></i> Nueva Rutina
-                    </a>
-                </div>
-                <div class="card-body">
-<<<<<<< HEAD
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Días de Asistencia</th>
-                                    <th>Estado Cuota</th>
-                                    <th>Rutinas Activas</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for alumno_data in alumnos %}
-                                <tr>
-                                    <td>{{ alumno_data.alumno.nombre }}</td>
-                                    <td>
-                                        {% for dia in alumno_data.alumno.dias_asistencia.all %}
-                                            <span class="badge bg-primary">{{ dia.get_dia_display }}</span>
-                                        {% endfor %}
-                                    </td>
-                                    <td>
-                                        {% if alumno_data.alumno.cuota_al_dia %}
-                                            <span class="badge bg-success">Al día</span>
-                                        {% else %}
-                                            <span class="badge bg-danger">Pendiente</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if alumno_data.rutinas %}
-                                            {% for rutina in alumno_data.rutinas %}
-                                                <a href="{% url 'gimnasio:ver_rutina' rutina.id %}" 
-                                                   class="badge bg-info text-decoration-none mb-1 d-block">
-                                                    {{ rutina.nombre }}
-                                                </a>
-                                            {% endfor %}
-                                        {% else %}
-                                            <span class="badge bg-secondary">Sin rutinas</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <a href="{% url 'gimnasio:crear_rutina_alumno' alumno_data.alumno.id %}" 
-                                               class="btn btn-sm btn-primary">
-                                                <i class="fas fa-plus"></i> Rutina
-                                            </a>
-                                            <a href="{% url 'gimnasio:gestionar_horario' alumno_data.alumno.id %}" 
-                                               class="btn btn-sm btn-warning">
-                                                <i class="fas fa-clock"></i> Horario
-                                            </a>
-                                            <a href="{% url 'gimnasio:ver_progreso' alumno_data.alumno.id %}" 
-                                               class="btn btn-sm btn-info">
-                                                <i class="fas fa-chart-line"></i> Progreso
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-=======
-                    {% if rutinas_activas %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Alumno</th>
-                                        <th>Ejercicios</th>
-                                        <th>Fecha</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for rutina in rutinas_activas %}
-                                    <tr>
-                                        <td>{{ rutina.nombre }}</td>
-                                        <td>{{ rutina.alumno_nombre }}</td>
-                                        <td>
-                                            <span class="badge bg-primary">
-                                                {{ rutina.ejercicios_count }} ejercicios
-                                            </span>
-                                        </td>
-                                        <td>{{ rutina.fecha_creacion|date:"d/m/Y" }}</td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <a href="{% url 'gimnasio:detalle_rutina' rutina.id %}" 
-                                                   class="btn btn-sm btn-info" 
-                                                   title="Ver Detalles">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <button class="btn btn-sm btn-danger" 
-                                                        onclick="desactivarRutina({{ rutina.id }})"
-                                                        title="Desactivar">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="alert alert-info">
-                            No hay rutinas activas. 
-                            <a href="{% url 'gimnasio:crear_rutina' %}" class="alert-link">
-                                Crear una nueva rutina
+                <!-- Rutinas -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-calendar2-check text-success me-2"></i>
+                                Rutinas
+                            </h5>
+                            <p class="card-text">Crea y administra rutinas de entrenamiento.</p>
+                            <a href="{% url 'gimnasio:crear_rutina' %}" class="btn btn-success">
+                                Nueva Rutina
                             </a>
                         </div>
-                    {% endif %}
+                    </div>
                 </div>
-            </div>
 
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Alumnos Activos</h5>
-                </div>
-                <div class="card-body">
-                    {% if alumnos %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Días de Asistencia</th>
-                                        <th>Estado Cuota</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for alumno in alumnos %}
-                                        <tr>
-                                            <td>{{ alumno.nombre }}</td>
-                                            <td>
-                                                {% for dia in alumno.dias_asistencia.all %}
-                                                    <span class="badge bg-primary">{{ dia.get_dia_display }}</span>
-                                                {% endfor %}
-                                            </td>
-                                            <td>
-                                                {% if alumno.cuota_al_dia %}
-                                                    <span class="badge bg-success">Al día</span>
-                                                {% else %}
-                                                    <span class="badge bg-danger">Pendiente</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <a href="{% url 'gimnasio:crear_rutina' %}?alumno={{ alumno.id }}" 
-                                                       class="btn btn-sm btn-success"
-                                                       title="Nueva Rutina">
-                                                        <i class="fas fa-plus"></i>
-                                                    </a>
-                                                    <a href="{% url 'gimnasio:ver_progreso' alumno.id %}" 
-                                                       class="btn btn-sm btn-info"
-                                                       title="Ver Progreso">
-                                                        <i class="fas fa-chart-line"></i>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                <!-- Ejercicios -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-activity text-info me-2"></i>
+                                Ejercicios
+                            </h5>
+                            <p class="card-text">Administra el catálogo de ejercicios disponibles.</p>
+                            <a href="{% url 'gimnasio:crear_ejercicio' %}" class="btn btn-info text-white">
+                                Nuevo Ejercicio
+                            </a>
                         </div>
-                    {% else %}
-                        <div class="alert alert-info">No hay alumnos registrados.</div>
-                    {% endif %}
->>>>>>> dev
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-function desactivarRutina(rutinaId) {
-    if (confirm('¿Estás seguro de que deseas desactivar esta rutina?')) {
-        window.location.href = `/gimnasio/profesor/rutina/${rutinaId}/desactivar/`;
-    }
-}
-</script>
 {% endblock %}

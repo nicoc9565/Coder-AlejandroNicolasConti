@@ -1,0 +1,89 @@
+{% extends 'gimnasio/base.html' %}
+{% load static %}
+
+{% block titulo %}{{ titulo }}{% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2">{{ titulo }}</h1>
+                <a href="{% url 'gimnasio:crear_rutina_alumno' alumno.id %}" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Nueva Rutina
+                </a>
+            </div>
+            
+            {% if rutinas %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Fecha Creación</th>
+                                <th>Estado</th>
+                                <th>Ejercicios</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rutina in rutinas %}
+                                <tr>
+                                    <td>{{ rutina.nombre }}</td>
+                                    <td>{{ rutina.fecha_creacion|date:"d/m/Y" }}</td>
+                                    <td>
+                                        {% if rutina.activa %}
+                                            <span class="badge bg-success">Activa</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inactiva</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ rutina.ejercicios.count }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'gimnasio:ejercicios_rutina_profesor' rutina.id %}" 
+                                               class="btn btn-sm btn-primary">
+                                                <i class="bi bi-list-check"></i> Ejercicios
+                                            </a>
+                                            <a href="{% url 'gimnasio:editar_rutina' rutina.id %}" 
+                                               class="btn btn-sm btn-warning">
+                                                <i class="bi bi-pencil"></i> Editar
+                                            </a>
+                                            {% if rutina.activa %}
+                                                <a href="{% url 'gimnasio:desactivar_rutina' rutina.id %}" 
+                                                   class="btn btn-sm btn-secondary">
+                                                    <i class="bi bi-pause-circle"></i> Desactivar
+                                                </a>
+                                            {% else %}
+                                                <a href="{% url 'gimnasio:activar_rutina' rutina.id %}" 
+                                                   class="btn btn-sm btn-success">
+                                                    <i class="bi bi-play-circle"></i> Activar
+                                                </a>
+                                            {% endif %}
+                                            <a href="{% url 'gimnasio:eliminar_rutina' rutina.id %}" 
+                                               class="btn btn-sm btn-danger"
+                                               onclick="return confirm('¿Estás seguro de que deseas eliminar esta rutina?')">
+                                                <i class="bi bi-trash"></i> Eliminar
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    Este alumno no tiene rutinas asignadas aún.
+                </div>
+            {% endif %}
+            
+            <div class="mt-4">
+                <a href="{% url 'gimnasio:alumnos_profesor' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver a la lista de alumnos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

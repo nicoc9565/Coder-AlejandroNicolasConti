@@ -1,0 +1,108 @@
+{% extends 'gimnasio/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block titulo %}{{ titulo }}{% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2">{{ rutina.nombre }}</h1>
+                <div>
+                    <a href="{% url 'gimnasio:editar_rutina' rutina.id %}" class="btn btn-primary">
+                        <i class="bi bi-pencil-square"></i> Editar Rutina
+                    </a>
+                    <a href="{% url 'gimnasio:eliminar_rutina' rutina.id %}" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Eliminar Rutina
+                    </a>
+                </div>
+            </div>
+
+            <!-- Información de la rutina -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Detalles de la Rutina</h5>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-3">Alumno:</dt>
+                        <dd class="col-sm-9">{{ rutina.alumno.nombre }} {{ rutina.alumno.apellido }}</dd>
+                        
+                        <dt class="col-sm-3">Descripción:</dt>
+                        <dd class="col-sm-9">{{ rutina.descripcion|default:"Sin descripción" }}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Lista de ejercicios -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Ejercicios de la Rutina</h5>
+                </div>
+                <div class="card-body">
+                    {% if ejercicios %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Orden</th>
+                                        <th>Ejercicio</th>
+                                        <th>Series</th>
+                                        <th>Repeticiones</th>
+                                        <th>Peso (kg)</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ejercicio in ejercicios %}
+                                        <tr>
+                                            <td>{{ ejercicio.orden }}</td>
+                                            <td>{{ ejercicio.ejercicio.nombre }}</td>
+                                            <td>{{ ejercicio.series }}</td>
+                                            <td>{{ ejercicio.repeticiones }}</td>
+                                            <td>{{ ejercicio.peso|default:"-" }}</td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{% url 'gimnasio:editar_ejercicio' ejercicio.id %}" class="btn btn-sm btn-primary">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </a>
+                                                    <a href="{% url 'gimnasio:eliminar_ejercicio' ejercicio.id %}" class="btn btn-sm btn-danger">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Esta rutina aún no tiene ejercicios asignados.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Formulario para agregar ejercicio -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Agregar Nuevo Ejercicio</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        <div class="row">
+                            {{ form|crispy }}
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-plus-circle"></i> Agregar Ejercicio
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

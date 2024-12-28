@@ -27,15 +27,17 @@ class RutinaForm(forms.ModelForm):
         model = Rutina
         fields = ['nombre', 'descripcion', 'alumno']
         widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de la rutina'}),
-            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Descripción de la rutina'}),
-            'alumno': forms.Select(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'rows': 4}),
         }
-        help_texts = {
-            'nombre': 'Ingresa un nombre descriptivo para la rutina.',
-            'descripcion': 'Describe el objetivo y características de la rutina.',
-            'alumno': 'Selecciona el alumno para quien es esta rutina.',
-        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filtrar solo alumnos (no profesores)
+        self.fields['alumno'].queryset = User.objects.filter(perfil__es_profesor=False)
+        # Personalizar los campos
+        self.fields['nombre'].widget.attrs.update({'class': 'form-control'})
+        self.fields['descripcion'].widget.attrs.update({'class': 'form-control'})
+        self.fields['alumno'].widget.attrs.update({'class': 'form-control'})
 
 class RutinaEjercicioForm(forms.ModelForm):
     grupo_muscular = forms.ChoiceField(
@@ -97,6 +99,16 @@ class RutinaEjercicioForm(forms.ModelForm):
             instance.save()
         
         return instance
+
+class EjercicioForm(forms.ModelForm):
+    class Meta:
+        model = Ejercicio
+        fields = ['nombre', 'descripcion', 'grupo_muscular']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'grupo_muscular': forms.TextInput(attrs={'class': 'form-control'}),
+        }
 
 class EjercicioCompletadoForm(forms.ModelForm):
     class Meta:

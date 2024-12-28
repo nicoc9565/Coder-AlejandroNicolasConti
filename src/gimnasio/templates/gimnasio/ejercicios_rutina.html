@@ -1,0 +1,91 @@
+{% extends 'gimnasio/base.html' %}
+{% load static %}
+
+{% block titulo %}{{ titulo }}{% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2">{{ rutina.nombre }}</h1>
+                {% if user.perfil.es_profesor %}
+                <a href="{% url 'gimnasio:editar_rutina' rutina.id %}" class="btn btn-primary">
+                    <i class="bi bi-pencil-square"></i> Editar Rutina
+                </a>
+                {% endif %}
+            </div>
+
+            {% if ejercicios %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Ejercicio</th>
+                                <th>Series</th>
+                                <th>Repeticiones</th>
+                                <th>Descanso</th>
+                                <th>Notas</th>
+                                {% if not user.perfil.es_profesor %}
+                                <th>Acciones</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detalle in ejercicios %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ detalle.ejercicio.nombre }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ detalle.ejercicio.grupo_muscular }}</small>
+                                    </td>
+                                    <td>{{ detalle.series }}</td>
+                                    <td>{{ detalle.repeticiones }}</td>
+                                    <td>{{ detalle.descanso }} seg</td>
+                                    <td>{{ detalle.notas|default:"-" }}</td>
+                                    {% if not user.perfil.es_profesor %}
+                                    <td>
+                                        <button class="btn btn-sm btn-success marcar-completado" 
+                                                data-ejercicio-id="{{ detalle.id }}">
+                                            <i class="bi bi-check-circle"></i> Completado
+                                        </button>
+                                    </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Esta rutina aún no tiene ejercicios asignados.
+                </div>
+            {% endif %}
+
+            {% if user.perfil.es_profesor %}
+            <div class="mt-4">
+                <a href="{% url 'gimnasio:agregar_ejercicios_rutina' rutina.id %}" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Agregar Ejercicios
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if not user.perfil.es_profesor %}
+<script>
+document.querySelectorAll('.marcar-completado').forEach(button => {
+    button.addEventListener('click', function() {
+        const ejercicioId = this.dataset.ejercicioId;
+        // Aquí puedes agregar la lógica para marcar el ejercicio como completado
+        this.classList.remove('btn-success');
+        this.classList.add('btn-secondary');
+        this.innerHTML = '<i class="bi bi-check-circle-fill"></i> Completado';
+        this.disabled = true;
+    });
+});
+</script>
+{% endif %}
+{% endblock %}
