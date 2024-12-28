@@ -195,7 +195,7 @@ def completar_ejercicio(request, rutina_ejercicio_id):
             notas=request.POST.get('notas', '')
         )
         messages.success(request, '¡Ejercicio completado!')
-        return redirect('gimnasio:ver_rutina', rutina_id=rutina_ejercicio.rutina.id)
+        return redirect('gimnasio:detalle_rutina', rutina_id=rutina_ejercicio.rutina.id)
     return redirect('gimnasio:perfil_alumno')
 
 @login_required
@@ -399,6 +399,7 @@ def ver_rutina(request, rutina_id):
         }
         
         return render(request, 'gimnasio/ver_rutina.html', context)
+        
     except Exception as e:
         messages.error(request, f'Error al cargar la rutina: {str(e)}')
         return redirect('gimnasio:panel_profesor')
